@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using MauiApp1.ApiService;
 
 namespace MauiApp1
 {
@@ -7,6 +8,10 @@ namespace MauiApp1
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
+
+            builder.Services.AddSingleton<MauiApp1.ApiService.ApiService>(sp =>
+                new MauiApp1.ApiService.ApiService("e140c897-b374-4a2d-9b51-9516d92590f8", "http://51.137.100.120:5000/"));
+
             builder
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts =>
@@ -16,7 +21,7 @@ namespace MauiApp1
                 });
 
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();

@@ -6,9 +6,6 @@
     xmlns:local="clr-namespace:MauiApp1"
     Title="MauiApp1">
 
-    <ShellContent
-        Title="Login"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
-
+    <ShellContent Title="Main" ContentTemplate="{DataTemplate local:MainPage}" />
+    <ShellContent Title="Home" ContentTemplate="{DataTemplate local:HomePage}" />
 </Shell>

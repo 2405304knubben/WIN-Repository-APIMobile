@@ -2,22 +2,18 @@
 {
     public partial class MainPage : ContentPage
     {
-
         public MainPage()
         {
             InitializeComponent();
         }
 
-        private void Login(object sender, EventArgs e)
+        private async void Login(object sender, EventArgs e)
         {
-            if(string.IsNullOrEmpty(UsernameInput.Text) || string.IsNullOrEmpty(PasswordInput.Text))
-            {
-                DisplayAlert("Fout", "Vul alle velden in.", "OK");
-                return;
-            }
+            LoginButton.Text = "Logging in...";
+            SemanticScreenReader.Announce(LoginButton.Text);
 
-            NewPage1 newPage = new NewPage1();
-            Navigation.PushAsync(newPage);
+            // Navigate to HomePage after login
+            await Navigation.PushAsync(new HomePage());
         }
     }
 }
