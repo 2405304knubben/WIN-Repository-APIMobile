@@ -6,31 +6,33 @@ using System.Threading.Tasks;
 
 using CommunityToolkit.Mvvm.ComponentModel; // Using CommunityToolkit for MVVM support (databinding en viewmodel ondersteuning)
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using MauiApp1.ApiService; // Pas aan naar jouw namespace
 using MauiApp1.ModelAPI;   // Pas aan naar jouw namespace
 
-public partial class HomeViewModel : ObservableObject
+namespace MauiApp1.ViewModel // Add namespace for consistency
 {
-    [ObservableProperty]
-    string welcomeMessage = "Welkom op de HomePage!";
-
-    public ObservableCollection<DeliveryState> DeliveryStates { get; } = new();
-
-    private readonly ApiService _apiService;
-
-    public HomeViewModel(ApiService apiService)
+    public partial class HomeViewModel : ObservableObject
     {
-        _apiService = apiService;
-        LoadDeliveryStates();
-    }
+        [ObservableProperty]
+        string welcomeMessage = "Welkom op de HomePage!";
 
-    private async void LoadDeliveryStates()
-    {
-        var states = await _apiService.GetAllDeliveryStatesAsync();
-        DeliveryStates.Clear();
-        foreach (var state in states)
-            DeliveryStates.Add(state);
+        public ObservableCollection<DeliveryState> DeliveryStates { get; } = new();
+
+        private readonly ApiService.ApiService _apiService;
+
+        public HomeViewModel(ApiService.ApiService apiService)
+        {
+            _apiService = apiService;
+            LoadDeliveryStates();
+        }
+
+        private async void LoadDeliveryStates()
+        {
+            var states = await _apiService.GetAllDeliveryStatesAsync();
+            DeliveryStates.Clear();
+            foreach (var state in states)
+                DeliveryStates.Add(state);
+        }
     }
 }
 

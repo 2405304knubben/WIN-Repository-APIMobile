@@ -9,9 +9,8 @@ namespace MauiApp1
         {
             var builder = MauiApp.CreateBuilder();
 
-            // In MauiProgram.cs
-            builder.Services.AddSingleton<ApiService.ApiService>(sp =>
-                    new ApiService.ApiService("e140c897-b374-4a2d-9b51-9516d92590f8", "http://51.137.100.120:5000/swagger/index.html"));
+            builder.Services.AddSingleton<MauiApp1.ApiService.ApiService>(sp =>
+                new MauiApp1.ApiService.ApiService("e140c897-b374-4a2d-9b51-9516d92590f8", "http://51.137.100.120:5000/"));
 
             builder
                 .UseMauiApp<App>()
@@ -22,7 +21,7 @@ namespace MauiApp1
                 });
 
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();

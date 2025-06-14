@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using MauiApp1.NewFolder;
+using MauiApp1.ApiService;
+using MauiApp1.ModelAPI;
 
 namespace MauiApp1.ApiService
 {
-    // Services/ApiService.cs
     public class ApiService
     {
         private readonly HttpClient _client;
@@ -30,7 +30,12 @@ namespace MauiApp1.ApiService
             return JsonSerializer.Deserialize<List<Order>>(json);
         }
 
-        // Voeg meer methodes toe voor andere API-calls
+        public async Task<List<DeliveryState>> GetAllDeliveryStatesAsync()
+        {
+            var response = await _client.GetAsync("deliverystates");
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<List<DeliveryState>>(json);
+        }
     }
-
 }
