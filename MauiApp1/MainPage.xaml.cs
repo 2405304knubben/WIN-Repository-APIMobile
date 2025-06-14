@@ -2,17 +2,18 @@
 {
     public partial class MainPage : ContentPage
     {
-
         public MainPage()
         {
             InitializeComponent();
         }
 
-        private void Login(object sender, EventArgs e)
+        private async void Login(object sender, EventArgs e)
         {
             LoginButton.Text = "Logging in...";
-            // code voor in te loggen komt hier
             SemanticScreenReader.Announce(LoginButton.Text);
+
+            // Navigate to HomePage after login
+            await Navigation.PushAsync(new HomePage());
         }
     }
 }
