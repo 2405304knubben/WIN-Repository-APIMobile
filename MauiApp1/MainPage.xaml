@@ -23,14 +23,16 @@
                 SemanticProperties.HeadingLevel="Level2"/>
 
             <Entry 
+                x:Name="UsernameInput"
                 Placeholder="Gebruikersnaam"/>
             
             <Entry
+                x:Name="PasswordInput"
                 Placeholder="Wachtwoord"
                 IsPassword="True"/>
 
             <Button
-                 x:Name="LoginButton"
+                x:Name="LoginButton"
                 Text="Login"
                 Clicked="Login"
                 />

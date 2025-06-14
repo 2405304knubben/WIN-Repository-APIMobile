@@ -10,9 +10,14 @@
 
         private void Login(object sender, EventArgs e)
         {
-            LoginButton.Text = "Logging in...";
-            // code voor in te loggen komt hier
-            SemanticScreenReader.Announce(LoginButton.Text);
+            if(string.IsNullOrEmpty(UsernameInput.Text) || string.IsNullOrEmpty(PasswordInput.Text))
+            {
+                DisplayAlert("Fout", "Vul alle velden in.", "OK");
+                return;
+            }
+
+            NewPage1 newPage = new NewPage1();
+            Navigation.PushAsync(newPage);
         }
     }
 }
