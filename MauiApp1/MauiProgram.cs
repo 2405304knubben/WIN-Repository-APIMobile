@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using MauiApp1.ApiService;
+using System.Reflection;
+using Microsoft.Extensions.Configuration;
 
 namespace MauiApp1
 {
@@ -9,8 +11,17 @@ namespace MauiApp1
         {
             var builder = MauiApp.CreateBuilder();
 
-            builder.Services.AddSingleton<MauiApp1.ApiService.ApiService>(sp =>
-                new MauiApp1.ApiService.ApiService("e140c897-b374-4a2d-9b51-9516d92590f8", "http://51.137.100.120:5000/"));
+            // Load appsettings.json  
+            // Add configuration from appsettings.json
+            builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+            var apiSettings = builder.Configuration.GetSection("ApiSettings");
+            var baseUrl = apiSettings["BaseUrl"];
+            var apiKey = apiSettings["ApiKey"];
+
+            // Register ApiService with DI
+            builder.Services.AddSingleton(new MauiApp1.ApiService.ApiService(apiKey, baseUrl));
+
 
             builder
                 .UseMauiApp<App>()
@@ -19,11 +30,6 @@ namespace MauiApp1
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
-
-#if DEBUG
-            builder.Logging.AddDebug();
-#endif
-
             return builder.Build();
         }
     }

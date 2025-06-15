@@ -9,7 +9,12 @@
 
         private async void Login(object sender, EventArgs e)
         {
-            LoginButton.Text = "Logging in...";
+            if(string.IsNullOrWhiteSpace(UsernameInput.Text) || string.IsNullOrWhiteSpace(PasswordInput.Text))
+            {
+                await DisplayAlert("Error", "Vul aub je gebruikesnaam en wachtwoord in.", "OK");
+                return;
+            }
+            LoginButton.Text = "Aan het inloggen...";
             SemanticScreenReader.Announce(LoginButton.Text);
 
             // Navigate to HomePage after login
