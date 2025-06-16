@@ -1,12 +1,29 @@
-<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.OrdersPage"
-             Title="OrdersPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
+             Title="Bestellingen">
+    <VerticalStackLayout Padding="20" Spacing="12">
+        <Label Text="Bestellingen" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center" />
+        <Label Text="{Binding StatusMessage}" TextColor="Red" />
+
+        <CollectionView ItemsSource="{Binding Orders}" SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="0,4" Padding="10" Stroke="LightGray" StrokeThickness="1" Background="#FFF">
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                            <VerticalStackLayout Grid.Column="0">
+                                <Label Text="{Binding Id, StringFormat='Order #{0}'}" FontAttributes="Bold" />
+                                <Label Text="{Binding Customer.Name, StringFormat='Klant: {0}'}" />
+                                <Label Text="{Binding OrderDate, StringFormat='Datum: {0:dd-MM-yyyy HH:mm}'}" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1"
+                                    Text="Details"
+                                    Command="{Binding BindingContext.ShowOrderDetailsCommand, Source={x:Reference Name=OrdersPageRoot}}"
+                                    CommandParameter="{Binding .}" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
     </VerticalStackLayout>
 </ContentPage>
