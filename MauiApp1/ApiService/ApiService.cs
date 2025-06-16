@@ -142,5 +142,22 @@ namespace MauiApp1.ApiService
                 throw new Exception($"Error completing delivery: {ex.Message}", ex);
             }
         }
+
+        public async Task<bool> PostOrderAsync(Order order)
+        {
+            try
+            {
+                var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+                var json = JsonSerializer.Serialize(order, options);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await _client.PostAsync("api/Order", content);
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
     }
 }

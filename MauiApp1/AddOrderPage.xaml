@@ -1,0 +1,33 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp1.AddOrderPage"
+             Title="Bestelling toevoegen">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="16">
+            <Label Text="Nieuwe bestelling" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center" />
+
+            <Entry Placeholder="Klant ID"
+                   Keyboard="Numeric"
+                   Text="{Binding NewOrderCustomerId}" />
+
+            <!-- Optioneel: Product selectie, als je producten wilt toevoegen -->
+            <!--
+            <Label Text="Producten (optioneel):" />
+            <CollectionView ItemsSource="{Binding AvailableProducts}" SelectionMode="Multiple" SelectedItems="{Binding SelectedProducts}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding Name}" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            -->
+
+            <Button Text="Bestelling aanmaken"
+                    Command="{Binding PostOrderCommand}" />
+
+            <Label Text="{Binding NewOrderStatus}" TextColor="Green" FontAttributes="Italic" />
+
+            <Label Text="De orderdatum en tijd worden automatisch ingesteld." FontSize="12" TextColor="Gray" HorizontalOptions="Center" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

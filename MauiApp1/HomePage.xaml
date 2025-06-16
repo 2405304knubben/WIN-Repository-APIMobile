@@ -2,25 +2,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.HomePage"
              Title="HomePage">
-    <VerticalStackLayout>
-        <Label 
-            Text="{Binding WelcomeMessage}"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-        <Label Text="{Binding StatusMessage}" TextColor="Red" Margin="10,0" />
-
-        <CollectionView ItemsSource="{Binding DeliveryStates}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Border Margin="5" Padding="10" Stroke="LightGray" StrokeThickness="1" Background="#FFF">
-                        <VerticalStackLayout>
-                            <Label Text="{Binding State}" FontAttributes="Bold"/>
-                            <Label Text="{Binding DateTime, StringFormat='{}{0:dd-MM-yyyy HH:mm}'}"/>
-                            <Label Text="{Binding DeliveryService.Name}" />
-                        </VerticalStackLayout>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="20">
+        <Button Text="Voeg bestelling toe" Command="{Binding ShowAddOrderCommand}" />
+        <Button Text="Bekijk bestellingen" Command="{Binding ShowOrdersCommand}" />
     </VerticalStackLayout>
+
 </ContentPage>
