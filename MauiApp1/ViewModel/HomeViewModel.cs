@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using CommunityToolkit.Mvvm.ComponentModel; // Using CommunityToolkit for MVVM support (databinding en viewmodel ondersteuning)
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
-using MauiApp1.ApiService; // Pas aan naar jouw namespace
-using MauiApp1.ModelAPI;   // Pas aan naar jouw namespace
+using MauiApp1.ApiService;
+using MauiApp1.ModelAPI;
 
-namespace MauiApp1.ViewModel // Add namespace for consistency
+namespace MauiApp1.ViewModel
 {
     public partial class HomeViewModel : ObservableObject
     {
         [ObservableProperty]
         string welcomeMessage = "Welkom op de HomePage!";
+
+        [ObservableProperty]
+        string statusMessage; // <-- Toegevoegd
 
         public ObservableCollection<DeliveryState> DeliveryStates { get; } = new();
 
@@ -28,12 +25,23 @@ namespace MauiApp1.ViewModel // Add namespace for consistency
 
         private async void LoadDeliveryStates()
         {
-            var states = await _apiService.GetAllDeliveryStatesAsync();
-            DeliveryStates.Clear();
-            foreach (var state in states)
-                DeliveryStates.Add(state);
+            try
+            {
+                StatusMessage = "Ophalen van DeliveryStates...";
+                var states = await _apiService.GetAllDeliveryStatesAsync();
+                StatusMessage = $"Aantal opgehaalde DeliveryStates: {states?.Count ?? 0}";
+
+                DeliveryStates.Clear();
+                foreach (var state in states)
+                    DeliveryStates.Add(state);
+
+                if (states == null || states.Count == 0)
+                    StatusMessage = "Geen DeliveryStates ontvangen van de API.";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Fout bij ophalen DeliveryStates: {ex.Message}";
+            }
         }
     }
 }
-
-
