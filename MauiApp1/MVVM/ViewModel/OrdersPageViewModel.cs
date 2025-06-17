@@ -5,7 +5,7 @@ using MauiApp1.ModelAPI;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
-namespace MauiApp1.ViewModel
+namespace MauiApp1.MVVM.ViewModel
 {
     public partial class OrdersPageViewModel : ObservableObject
     {

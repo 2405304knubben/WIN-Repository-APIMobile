@@ -1,33 +1,70 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MauiApp1.AddOrderPage"
-             Title="Bestelling toevoegen">
+             xmlns:model="clr-namespace:MauiApp1.ModelAPI"
+             xmlns:vm="clr-namespace:MauiApp1.MVVM.ViewModel"
+             x:Class="MauiApp1.MVVM.Views.AddOrderPage"
+             Title="Nieuwe Order">
+
+
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="16">
-            <Label Text="Nieuwe bestelling" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center" />
 
-            <Entry Placeholder="Klant ID"
-                   Keyboard="Numeric"
-                   Text="{Binding NewOrderCustomerId}" />
+            <!-- Klantgegevens -->
+            <Label Text="Klantgegevens" FontAttributes="Bold"/>
+            <Entry Placeholder="Klantnaam" Text="{Binding NewOrderCustomer.Name}" />
+            <Entry Placeholder="Adres" Text="{Binding NewOrderCustomer.Address}" />
+            <HorizontalStackLayout>
+                <Label Text="Actief" VerticalOptions="Center"/>
+                <Switch IsToggled="{Binding NewOrderCustomer.Active}" />
+            </HorizontalStackLayout>
 
-            <!-- Optioneel: Product selectie, als je producten wilt toevoegen -->
-            <!--
-            <Label Text="Producten (optioneel):" />
-            <CollectionView ItemsSource="{Binding AvailableProducts}" SelectionMode="Multiple" SelectedItems="{Binding SelectedProducts}">
+            <!-- Producten toevoegen -->
+            <Label Text="Producten" FontAttributes="Bold"/>
+            <Entry Placeholder="Productnaam" Text="{Binding TempProductName}" />
+            <Entry Placeholder="Beschrijving" Text="{Binding TempProductDescription}" />
+            <Entry Placeholder="Prijs" Keyboard="Numeric" Text="{Binding TempProductPrice}" />
+            <Button Text="Product toevoegen" Command="{Binding AddProductCommand}" />
+
+            <CollectionView ItemsSource="{Binding NewOrderProducts}" HeightRequest="120">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Label Text="{Binding Name}" />
+                        <HorizontalStackLayout>
+                            <Label Text="{Binding Name}" />
+                            <Label Text="{Binding Price, StringFormat='&#x20AC;{0:F2}'}" />
+                            <Button Text="Verwijder"
+                                    Command="{Binding BindingContext.RemoveProductCommand, Source={x:Reference Name=AddOrderPage}}"
+                                    CommandParameter="{Binding .}" />
+                        </HorizontalStackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-            -->
 
-            <Button Text="Bestelling aanmaken"
-                    Command="{Binding PostOrderCommand}" />
+            <!-- Delivery States toevoegen -->
+            <Label Text="Leveringsstatussen" FontAttributes="Bold"/>
+            <Picker Title="Status"
+                    ItemsSource="{Binding DeliveryStateEnumValues}"
+                    SelectedItem="{Binding TempDeliveryStateEnum}" />
+            <Entry Placeholder="Delivery Service Id" Keyboard="Numeric" Text="{Binding TempDeliveryServiceId}" />
+            <Button Text="Leveringsstatus toevoegen" Command="{Binding AddDeliveryStateCommand}" />
 
-            <Label Text="{Binding NewOrderStatus}" TextColor="Green" FontAttributes="Italic" />
+            <CollectionView ItemsSource="{Binding NewOrderDeliveryStates}" HeightRequest="120">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <HorizontalStackLayout>
+                            <Label Text="{Binding State}" />
+                            <Label Text="{Binding DateTime, StringFormat='{0:dd-MM-yyyy HH:mm}'}" />
+                            <Button Text="Verwijder"
+                                    Command="{Binding BindingContext.RemoveDeliveryStateCommand, Source={x:Reference Name=AddOrderPage}}"
+                                    CommandParameter="{Binding .}" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
-            <Label Text="De orderdatum en tijd worden automatisch ingesteld." FontSize="12" TextColor="Gray" HorizontalOptions="Center" />
+            <!-- Order aanmaken -->
+            <Button Text="Order aanmaken" Command="{Binding PostOrderCommand}" />
+            <Label Text="{Binding NewOrderStatus}" TextColor="Green" />
+
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

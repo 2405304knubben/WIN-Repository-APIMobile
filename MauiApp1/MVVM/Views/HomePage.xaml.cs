@@ -1,15 +1,15 @@
-using MauiApp1.ViewModel;
-using MauiApp1.ApiService;
+using MauiApp1.MVVM.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace MauiApp1;
-
-public partial class HomePage : ContentPage
+namespace MauiApp1.MVVM.Views
 {
-    public HomePage()
+    public partial class HomePage : ContentPage
     {
-        InitializeComponent();
-        var apiService = Application.Current.Handler.MauiContext.Services.GetService<MauiApp1.ApiService.ApiService>();
-        BindingContext = new HomeViewModel(apiService);
+        public HomePage()
+        {
+            InitializeComponent();
+            var apiService = Application.Current.Handler.MauiContext.Services.GetService<MauiApp1.ApiService.ApiService>();
+            BindingContext = new HomeViewModel(apiService);
+        }
     }
 }

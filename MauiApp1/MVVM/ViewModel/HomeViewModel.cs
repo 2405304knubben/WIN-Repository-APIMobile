@@ -4,7 +4,7 @@ using MauiApp1.ApiService;
 using MauiApp1.ModelAPI;
 using CommunityToolkit.Mvvm.Input;
 
-namespace MauiApp1.ViewModel
+namespace MauiApp1.MVVM.ViewModel
 {
     public partial class HomeViewModel : ObservableObject
     {

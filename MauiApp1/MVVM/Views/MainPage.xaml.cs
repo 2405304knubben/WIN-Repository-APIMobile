@@ -1,4 +1,4 @@
-﻿namespace MauiApp1
+﻿namespace MauiApp1.MVVM.Views
 {
     public partial class MainPage : ContentPage
     {
@@ -9,7 +9,7 @@
 
         private async void Login(object sender, EventArgs e)
         {
-            if(string.IsNullOrWhiteSpace(UsernameInput.Text) || string.IsNullOrWhiteSpace(PasswordInput.Text))
+            if (string.IsNullOrWhiteSpace(UsernameInput.Text) || string.IsNullOrWhiteSpace(PasswordInput.Text))
             {
                 await DisplayAlert("Error", "Vul aub je gebruikesnaam en wachtwoord in.", "OK");
                 return;
