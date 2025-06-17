@@ -18,7 +18,8 @@
                     IsRefreshing="{Binding IsLoading}">
             <CollectionView ItemsSource="{Binding Orders}"
                           EmptyView="No orders available">
-                <CollectionView.ItemTemplate>                    <DataTemplate x:DataType="model:Order">
+                <CollectionView.ItemTemplate>                    
+                     <DataTemplate x:DataType="model:Order">
                         <Border Margin="10,5"
                                 Padding="10"
                                 Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
