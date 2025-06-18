@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.MVVM.Views.OrdersPage"
+             x:Name="OrdersPageRef"
              xmlns:model="clr-namespace:MauiApp1.ModelAPI"
              Title="Orders">
 
@@ -30,7 +31,7 @@
                                 <!-- Info button as text -->
                                 <Button Grid.Row="0" Grid.Column="2"
                                         Text="Info"
-                                        Command="{Binding BindingContext.ShowOrderDetailsCommand, Source={x:Reference OrdersPage}}"
+                                        Command="{Binding BindingContext.ShowOrderDetailsCommand, Source={x:Reference OrdersPageRef}}"
                                         CommandParameter="{Binding .}"
                                         WidthRequest="60"
                                         BackgroundColor="Transparent"
@@ -53,7 +54,7 @@
                                 </HorizontalStackLayout>
                                 <Button Grid.Row="2" Grid.Column="2"
                                         Text="Afronden"
-                                        Command="{Binding BindingContext.CompleteOrderCommand, Source={x:Reference OrdersPage}}"
+                                        Command="{Binding BindingContext.CompleteOrderCommand, Source={x:Reference OrdersPageRef}}"
                                         CommandParameter="{Binding .}"
                                         WidthRequest="80"
                                         BackgroundColor="Transparent"

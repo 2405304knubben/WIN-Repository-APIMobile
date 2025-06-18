@@ -14,15 +14,17 @@ namespace MauiApp1.MVVM.ViewModel
 
         public ObservableCollection<Order> Orders { get; } = new();
 
+        // Gebruik partial properties voor WinRT compatibiliteit
         [ObservableProperty]
-        string statusMessage;
+        private string? statusMessage = string.Empty;
 
         [ObservableProperty]
-        Order? selectedOrder;
+        private Order? selectedOrder;
 
-        public OrdersPageViewModel(ApiService.ApiService apiService) // <-- Volledige naam
+        public OrdersPageViewModel(ApiService.ApiService apiService)
         {
             _apiService = apiService;
+            statusMessage = string.Empty;
             LoadOrdersCommand.Execute(null);
         }
 
@@ -36,8 +38,11 @@ namespace MauiApp1.MVVM.ViewModel
                 StatusMessage = $"Aantal opgehaalde orders: {orders?.Count ?? 0}";
 
                 Orders.Clear();
-                foreach (var order in orders)
-                    Orders.Add(order);
+                if (orders != null)
+                {
+                    foreach (var order in orders)
+                        Orders.Add(order);
+                }
 
                 if (orders == null || orders.Count == 0)
                     StatusMessage = "Geen orders ontvangen van de API.";
@@ -53,19 +58,32 @@ namespace MauiApp1.MVVM.ViewModel
         [RelayCommand]
         public async Task ShowOrderDetails(Order order)
         {
-            // Open een nieuwe pagina met details
-            await Shell.Current.GoToAsync(nameof(OrderDetailsPage), new Dictionary<string, object>
+            if (order == null)
             {
-                ["Order"] = order
-            });
+                StatusMessage = "Geen order geselecteerd.";
+                return;
+            }
+            // Navigeer met expliciete route-naam
+            await Shell.Current.GoToAsync($"OrderDetailsPage?OrderId={order.Id}");
         }
 
         [RelayCommand]
         public async Task CompleteOrder(Order order)
         {
-            // Roep je ApiService aan om de order af te ronden
-            await _apiService.CompleteDeliveryAsync(order.Id);
-            await LoadOrders(); // Refresh de lijst
+            if (order == null)
+            {
+                StatusMessage = "Geen order geselecteerd.";
+                return;
+            }
+            try
+            {
+                await _apiService.CompleteDeliveryAsync(order.Id);
+                await LoadOrders(); // Refresh de lijst
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Fout bij afronden order: {ex.Message}";
+            }
         }
     }
 }
