@@ -1,77 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.MVVM.Views.OrdersPage"
              xmlns:model="clr-namespace:MauiApp1.ModelAPI"
              Title="Orders">
-    
-    <Grid RowDefinitions="Auto,*">
-        <!-- Error Message Display -->
-        <Label Text="{Binding ErrorMessage}"
-               IsVisible="{Binding HasError}"
-               TextColor="Red"
-               Padding="10"
-               Grid.Row="0"/>
 
-        <!-- Main Content -->
-        <RefreshView Grid.Row="1"
-                    Command="{Binding RefreshCommand}"
-                    IsRefreshing="{Binding IsLoading}">
-            <CollectionView ItemsSource="{Binding Orders}"
-                          EmptyView="No orders available">
-                <CollectionView.ItemTemplate>                    
-                     <DataTemplate x:DataType="model:Order">
-                        <Border Margin="10,5"
-                                Padding="10"
-                                Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+
+            <Label Text="Bestellingen" FontSize="24" FontAttributes="Bold" />
+
+            <CollectionView ItemsSource="{Binding Orders}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:Order">
+                        <Border Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
                                 Background="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray800}}"
-                                StrokeShape="RoundRectangle 8">
-                            <Grid RowDefinitions="Auto,Auto,Auto" 
-                                  ColumnDefinitions="*,Auto">
-                                
+                                StrokeShape="RoundRectangle 8"
+                                Margin="0,8">
+                            <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto,Auto">
                                 <!-- Order ID and Date -->
                                 <Label Grid.Row="0" Grid.Column="0"
                                        Text="{Binding Id, StringFormat='Order #{0}'}"
                                        FontSize="18"
                                        FontAttributes="Bold"/>
-                                
                                 <Label Grid.Row="0" Grid.Column="1"
                                        Text="{Binding OrderDate, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
                                        FontSize="14"
                                        TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
-
+                                <!-- Info button as text -->
+                                <Button Grid.Row="0" Grid.Column="2"
+                                        Text="Info"
+                                        Command="{Binding BindingContext.ShowOrderDetailsCommand, Source={x:Reference OrdersPage}}"
+                                        CommandParameter="{Binding .}"
+                                        WidthRequest="60"
+                                        BackgroundColor="Transparent"
+                                        TextColor="DodgerBlue"
+                                        FontAttributes="Bold"/>
                                 <!-- Customer Info -->
-                                <StackLayout Grid.Row="1" Grid.ColumnSpan="2"
-                                           Margin="0,5">
-                                    <Label Text="{Binding Customer.Name}"
-                                           FontSize="16"/>
-                                    <Label Text="{Binding Customer.Address}"
-                                           FontSize="14"
+                                <StackLayout Grid.Row="1" Grid.ColumnSpan="3" Margin="0,5">
+                                    <Label Text="{Binding Customer.Name}" FontSize="16"/>
+                                    <Label Text="{Binding Customer.Address}" FontSize="14"
                                            TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
                                 </StackLayout>
-
-                                <!-- Products Count and Status -->
-                                <HorizontalStackLayout Grid.Row="2" Grid.ColumnSpan="2"
-                                                     Spacing="10">
-                                    <Label Text="{Binding Products.Count, StringFormat='{0} products'}"
+                                <!-- Products Count and Status + Complete button as text -->
+                                <HorizontalStackLayout Grid.Row="2" Grid.ColumnSpan="2" Spacing="10">
+                                    <Label Text="{Binding Products.Count, StringFormat='{0} producten'}"
                                            FontSize="14"
                                            TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
-                                    
-                                    <Label Text="{Binding DeliveryStates.Count, StringFormat='{0} delivery states'}"
+                                    <Label Text="{Binding DeliveryStates.Count, StringFormat='{0} leveringen'}"
                                            FontSize="14"
                                            TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
                                 </HorizontalStackLayout>
+                                <Button Grid.Row="2" Grid.Column="2"
+                                        Text="Afronden"
+                                        Command="{Binding BindingContext.CompleteOrderCommand, Source={x:Reference OrdersPage}}"
+                                        CommandParameter="{Binding .}"
+                                        WidthRequest="80"
+                                        BackgroundColor="Transparent"
+                                        TextColor="Green"
+                                        FontAttributes="Bold"/>
                             </Grid>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-        </RefreshView>
 
-        <!-- Loading Indicator -->
-        <ActivityIndicator Grid.Row="1"
-                          IsRunning="{Binding IsLoading}"
-                          IsVisible="{Binding IsLoading}"
-                          HorizontalOptions="Center"
-                          VerticalOptions="Center"/>
-    </Grid>
+            <!-- Status/feedback -->
+            <Label Text="{Binding StatusMessage}" TextColor="Gray" FontSize="14" HorizontalOptions="Center" />
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

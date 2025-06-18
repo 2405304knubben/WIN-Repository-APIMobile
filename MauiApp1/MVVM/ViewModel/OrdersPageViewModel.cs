@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using MauiApp1.ApiService;
 using MauiApp1.ModelAPI;
+using MauiApp1.MVVM.Views;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
@@ -47,14 +48,24 @@ namespace MauiApp1.MVVM.ViewModel
             }
         }
 
+        
+
         [RelayCommand]
         public async Task ShowOrderDetails(Order order)
         {
-            SelectedOrder = order;
-            await App.Current.MainPage.DisplayAlert(
-                "Order details",
-                $"OrderId: {order.Id}\nKlant: {order.Customer?.Name}\nDatum: {order.OrderDate:dd-MM-yyyy HH:mm}\nProducten: {order.Products?.Count ?? 0}",
-                "Sluiten");
+            // Open een nieuwe pagina met details
+            await Shell.Current.GoToAsync(nameof(OrderDetailsPage), new Dictionary<string, object>
+            {
+                ["Order"] = order
+            });
+        }
+
+        [RelayCommand]
+        public async Task CompleteOrder(Order order)
+        {
+            // Roep je ApiService aan om de order af te ronden
+            await _apiService.CompleteDeliveryAsync(order.Id);
+            await LoadOrders(); // Refresh de lijst
         }
     }
 }
