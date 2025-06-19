@@ -37,13 +37,15 @@ namespace MauiApp1.ApiService
                 var requestUrl = "api/Order";
                 var response = await _client.GetAsync(requestUrl);
                 var content = await response.Content.ReadAsStringAsync();
-                
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new HttpRequestException($"Error {(int)response.StatusCode}: {content}");
                 }
-                
-                return JsonSerializer.Deserialize<List<Order>>(content) ?? new List<Order>();
+                return JsonSerializer.Deserialize<List<Order>>(content, options) ?? new List<Order>();
             }
             catch (Exception ex)
             {
@@ -58,13 +60,15 @@ namespace MauiApp1.ApiService
                 var requestUrl = "api/DeliveryStates/DeliveryStates";
                 var response = await _client.GetAsync(requestUrl);
                 var content = await response.Content.ReadAsStringAsync();
-                
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new HttpRequestException($"Error {(int)response.StatusCode}: {content}");
                 }
-                
-                return JsonSerializer.Deserialize<List<DeliveryState>>(content) ?? new List<DeliveryState>();
+                return JsonSerializer.Deserialize<List<DeliveryState>>(content, options) ?? new List<DeliveryState>();
             }
             catch (Exception ex)
             {
@@ -79,13 +83,15 @@ namespace MauiApp1.ApiService
                 var requestUrl = $"api/DeliveryStates/StartDelivery?OrderId={orderId}";
                 var response = await _client.PostAsync(requestUrl, null);
                 var content = await response.Content.ReadAsStringAsync();
-                
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new HttpRequestException($"Error {(int)response.StatusCode}: {content}");
                 }
-                
-                return JsonSerializer.Deserialize<List<DeliveryState>>(content) ?? new List<DeliveryState>();
+                return JsonSerializer.Deserialize<List<DeliveryState>>(content, options) ?? new List<DeliveryState>();
             }
             catch (Exception ex)
             {
@@ -100,20 +106,17 @@ namespace MauiApp1.ApiService
                 var requestUrl = "api/DeliveryStates/UpdateDeliveryState";
                 var options = new JsonSerializerOptions
                 {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    PropertyNameCaseInsensitive = true
                 };
-                
                 var content = JsonSerializer.Serialize(deliveryState, options);
                 var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
-                
                 var response = await _client.PostAsync(requestUrl, httpContent);
                 var responseContent = await response.Content.ReadAsStringAsync();
-                
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new HttpRequestException($"Error {(int)response.StatusCode}: {responseContent}");
                 }
-                
                 return JsonSerializer.Deserialize<List<DeliveryState>>(responseContent, options) ?? new List<DeliveryState>();
             }
             catch (Exception ex)
@@ -129,13 +132,15 @@ namespace MauiApp1.ApiService
                 var requestUrl = $"api/DeliveryStates/CompleteDelivery?OrderId={orderId}";
                 var response = await _client.PostAsync(requestUrl, null);
                 var content = await response.Content.ReadAsStringAsync();
-                
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new HttpRequestException($"Error {(int)response.StatusCode}: {content}");
                 }
-                
-                return JsonSerializer.Deserialize<List<DeliveryState>>(content) ?? new List<DeliveryState>();
+                return JsonSerializer.Deserialize<List<DeliveryState>>(content, options) ?? new List<DeliveryState>();
             }
             catch (Exception ex)
             {

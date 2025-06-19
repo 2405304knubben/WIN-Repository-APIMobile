@@ -24,6 +24,11 @@
                                        Text="{Binding Id, StringFormat='Order #{0}'}"
                                        FontSize="18"
                                        FontAttributes="Bold"/>
+                                <!-- Debug: Toon de ruwe Order Id -->
+                                <Label Grid.Row="0" Grid.Column="0" Margin="0,20,0,0"
+                                       Text="{Binding Id, StringFormat='[DEBUG: Id={0}]'}"
+                                       FontSize="10"
+                                       TextColor="Red"/>
                                 <Label Grid.Row="0" Grid.Column="1"
                                        Text="{Binding OrderDate, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
                                        FontSize="14"

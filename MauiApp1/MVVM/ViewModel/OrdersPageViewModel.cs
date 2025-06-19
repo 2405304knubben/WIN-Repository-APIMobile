@@ -63,8 +63,9 @@ namespace MauiApp1.MVVM.ViewModel
                 StatusMessage = "Geen order geselecteerd.";
                 return;
             }
-            // Navigeer met expliciete route-naam
-            await Shell.Current.GoToAsync($"OrderDetailsPage?OrderId={order.Id}");
+            // Debug: Toon de Id in de statusbalk
+            StatusMessage = $"[DEBUG] ShowOrderDetails: OrderId={order?.Id}";
+            await Shell.Current.GoToAsync($"OrderDetailsPage?OrderId={order?.Id}");
         }
 
         [RelayCommand]
@@ -77,7 +78,9 @@ namespace MauiApp1.MVVM.ViewModel
             }
             try
             {
-                await _apiService.CompleteDeliveryAsync(order.Id);
+                // Debug: Toon de Id in de statusbalk
+                StatusMessage = $"[DEBUG] CompleteOrder: OrderId={order?.Id}";
+                await _apiService.CompleteDeliveryAsync(order?.Id ?? 0);
                 await LoadOrders(); // Refresh de lijst
             }
             catch (Exception ex)
