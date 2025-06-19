@@ -18,17 +18,12 @@
                                 Background="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray800}}"
                                 StrokeShape="RoundRectangle 8"
                                 Margin="0,8">
-                            <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto,Auto">
+                            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto,Auto">
                                 <!-- Order ID and Date -->
                                 <Label Grid.Row="0" Grid.Column="0"
                                        Text="{Binding Id, StringFormat='Order #{0}'}"
                                        FontSize="18"
                                        FontAttributes="Bold"/>
-                                <!-- Debug: Toon de ruwe Order Id -->
-                                <Label Grid.Row="0" Grid.Column="0" Margin="0,20,0,0"
-                                       Text="{Binding Id, StringFormat='[DEBUG: Id={0}]'}"
-                                       FontSize="10"
-                                       TextColor="Red"/>
                                 <Label Grid.Row="0" Grid.Column="1"
                                        Text="{Binding OrderDate, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
                                        FontSize="14"
@@ -48,23 +43,6 @@
                                     <Label Text="{Binding Customer.Address}" FontSize="14"
                                            TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
                                 </StackLayout>
-                                <!-- Products Count and Status + Complete button as text -->
-                                <HorizontalStackLayout Grid.Row="2" Grid.ColumnSpan="2" Spacing="10">
-                                    <Label Text="{Binding Products.Count, StringFormat='{0} producten'}"
-                                           FontSize="14"
-                                           TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
-                                    <Label Text="{Binding DeliveryStates.Count, StringFormat='{0} leveringen'}"
-                                           FontSize="14"
-                                           TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
-                                </HorizontalStackLayout>
-                                <Button Grid.Row="2" Grid.Column="2"
-                                        Text="Afronden"
-                                        Command="{Binding BindingContext.CompleteOrderCommand, Source={x:Reference OrdersPageRef}}"
-                                        CommandParameter="{Binding .}"
-                                        WidthRequest="80"
-                                        BackgroundColor="Transparent"
-                                        TextColor="Green"
-                                        FontAttributes="Bold"/>
                             </Grid>
                         </Border>
                     </DataTemplate>

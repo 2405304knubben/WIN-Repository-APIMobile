@@ -3,6 +3,7 @@ using Microsoft.Maui.Controls;
 using MauiApp1.ModelAPI;
 using MauiApp1.ApiService;
 using System.Threading.Tasks;
+using MauiApp1.MVVM.ViewModel;
 
 namespace MauiApp1.MVVM.Views
 {
@@ -20,36 +21,31 @@ namespace MauiApp1.MVVM.Views
                 LoadOrderDetails();
             }
         }
-
         public OrderDetailsPage()
         {
             InitializeComponent();
             _apiService = Application.Current?.Handler?.MauiContext?.Services?.GetService<ApiService.ApiService>();
+            BindingContext = new OrderDetailsPageViewModel();
         }
-
         private async void LoadOrderDetails()
         {
             if (_apiService == null)
             {
-                DebugLabel.Text = "ApiService is null";
                 return;
             }
             if (OrderId <= 0)
             {
-                DebugLabel.Text = $"OrderId is ongeldig: {OrderId}";
                 return;
             }
+            // Haal alle orders op uit cache/lijst in plaats van losse API-call
             var orders = await _apiService.GetOrdersAsync();
-            DebugLabel.Text = $"Orders count: {orders?.Count ?? 0}, OrderId: {OrderId}";
             var found = orders?.Find(o => o.Id == OrderId);
             if (found != null)
             {
-                BindingContext = found;
-                DebugLabel.Text += $"\nOrder gevonden: {found.Id}, Klant: {found.Customer?.Name}";
-            }
-            else
-            {
-                DebugLabel.Text += "\nOrder niet gevonden.";
+                if (BindingContext is OrderDetailsPageViewModel vm)
+                {
+                    vm.Order = found;
+                }
             }
         }
     }

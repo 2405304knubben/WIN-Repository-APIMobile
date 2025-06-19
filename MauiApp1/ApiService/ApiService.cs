@@ -164,5 +164,28 @@ namespace MauiApp1.ApiService
             }
         }
 
+        public async Task<Order?> GetOrderByIdAsync(int id)
+        {
+            try
+            {
+                var requestUrl = $"api/Order/{id}";
+                var response = await _client.GetAsync(requestUrl);
+                var content = await response.Content.ReadAsStringAsync();
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new HttpRequestException($"Error {(int)response.StatusCode}: {content}");
+                }
+                return JsonSerializer.Deserialize<Order>(content, options);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error getting order by id: {ex.Message}", ex);
+            }
+        }
+
     }
 }
