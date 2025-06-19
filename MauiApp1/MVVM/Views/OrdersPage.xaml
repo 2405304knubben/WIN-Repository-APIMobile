@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MauiApp1.MVVM.Views.OrdersPage"
-             x:Name="OrdersPageRef"
-             xmlns:model="clr-namespace:MauiApp1.ModelAPI"
-             Title="Orders">
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:model="clr-namespace:MauiApp1.ModelAPI"
+    xmlns:converters="clr-namespace:MauiApp1.MVVM.Converters"
+    x:Class="MauiApp1.MVVM.Views.OrdersPage"
+    x:Name="OrdersPageRef"
+    Title="Orders">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:LastDeliveryStateToStatusConverter x:Key="LastDeliveryStateToStatusConverter"/>
+            <converters:LastDeliveryStateEnumConverter x:Key="LastDeliveryStateEnumConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="12">
@@ -18,7 +27,7 @@
                                 Background="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray800}}"
                                 StrokeShape="RoundRectangle 8"
                                 Margin="0,8">
-                            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto,Auto">
+                            <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,Auto,Auto">
                                 <!-- Order ID and Date -->
                                 <Label Grid.Row="0" Grid.Column="0"
                                        Text="{Binding Id, StringFormat='Order #{0}'}"
@@ -28,7 +37,7 @@
                                        Text="{Binding OrderDate, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
                                        FontSize="14"
                                        TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
-                                <!-- Info button as text -->
+                                <!-- Info button -->
                                 <Button Grid.Row="0" Grid.Column="2"
                                         Text="Info"
                                         Command="{Binding BindingContext.ShowOrderDetailsCommand, Source={x:Reference OrdersPageRef}}"
@@ -37,12 +46,65 @@
                                         BackgroundColor="Transparent"
                                         TextColor="DodgerBlue"
                                         FontAttributes="Bold"/>
+
                                 <!-- Customer Info -->
                                 <StackLayout Grid.Row="1" Grid.ColumnSpan="3" Margin="0,5">
                                     <Label Text="{Binding Customer.Name}" FontSize="16"/>
                                     <Label Text="{Binding Customer.Address}" FontSize="14"
                                            TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
                                 </StackLayout>
+
+                                <!-- Products Count -->
+                                <Label Grid.Row="2" Grid.Column="0"
+                                       Text="{Binding Products.Count, StringFormat='{0} producten'}"
+                                       FontSize="14"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+
+                                <!-- Status (links onder) -->
+                                <Label Grid.Row="3" Grid.Column="0"
+                                       VerticalOptions="End"
+                                       Text="{Binding DeliveryStates, Converter={StaticResource LastDeliveryStateToStatusConverter}}"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="DarkSlateGray"/>
+
+                                <!-- Actieknop (rechts onder) -->
+                                <Button Grid.Row="3" Grid.Column="2"
+                                        VerticalOptions="End"
+                                        Command="{Binding BindingContext.UpdateDeliveryStateCommand, Source={x:Reference OrdersPageRef}}"
+                                        CommandParameter="{Binding .}">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Text" Value="Bezorging starten"/>
+                                            <Setter Property="BackgroundColor" Value="Orange"/>
+                                            <Style.Triggers>
+                                                <!-- Onderweg -->
+                                                <DataTrigger TargetType="Button"
+                                                    Binding="{Binding DeliveryStates, Converter={StaticResource LastDeliveryStateEnumConverter}}"
+                                                    Value="InTransit">
+                                                    <Setter Property="Text" Value="Afronden"/>
+                                                    <Setter Property="BackgroundColor" Value="DodgerBlue"/>
+                                                </DataTrigger>
+                                                <!-- Bezorgd -->
+                                                <DataTrigger TargetType="Button"
+                                                    Binding="{Binding DeliveryStates, Converter={StaticResource LastDeliveryStateEnumConverter}}"
+                                                    Value="Delivered">
+                                                    <Setter Property="Text" Value="Afgerond"/>
+                                                    <Setter Property="BackgroundColor" Value="Green"/>
+                                                    <Setter Property="IsEnabled" Value="False"/>
+                                                </DataTrigger>
+                                                <!-- Geannuleerd -->
+                                                <DataTrigger TargetType="Button"
+                                                    Binding="{Binding DeliveryStates, Converter={StaticResource LastDeliveryStateEnumConverter}}"
+                                                    Value="Cancelled">
+                                                    <Setter Property="Text" Value="Geannuleerd"/>
+                                                    <Setter Property="BackgroundColor" Value="Gray"/>
+                                                    <Setter Property="IsEnabled" Value="False"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
                             </Grid>
                         </Border>
                     </DataTemplate>

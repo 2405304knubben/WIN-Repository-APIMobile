@@ -4,6 +4,7 @@ namespace MauiApp1.ModelAPI
     {
         Pending,
         InTransit,
-        Delivered
+        Delivered,
+        Cancelled
     }
 }

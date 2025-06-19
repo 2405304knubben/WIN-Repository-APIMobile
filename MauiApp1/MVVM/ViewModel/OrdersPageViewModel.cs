@@ -4,6 +4,7 @@ using MauiApp1.ApiService;
 using MauiApp1.ModelAPI;
 using MauiApp1.MVVM.Views;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace MauiApp1.MVVM.ViewModel
@@ -88,5 +89,6 @@ namespace MauiApp1.MVVM.ViewModel
                 StatusMessage = $"Fout bij afronden order: {ex.Message}";
             }
         }
+
     }
 }
