@@ -10,7 +10,8 @@ namespace MauiApp1
             InitializeComponent();
 
             // Register routes for navigation
-            Routing.RegisterRoute("OrderDetailsPage", typeof(OrderDetailsPage));
+            Routing.RegisterRoute(nameof(OrderDetailsPage), typeof(OrderDetailsPage));
+            Routing.RegisterRoute(nameof(DeliveryTrackingPage), typeof(DeliveryTrackingPage));
         }
     }
 }

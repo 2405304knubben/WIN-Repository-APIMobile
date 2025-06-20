@@ -2,6 +2,8 @@
 using MauiApp1.ApiService;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
+using MauiApp1.MVVM.Views;
+using MauiApp1.MVVM.ViewModel;
 
 namespace MauiApp1
 {
@@ -17,10 +19,14 @@ namespace MauiApp1
 
             var apiSettings = builder.Configuration.GetSection("ApiSettings");
             var baseUrl = apiSettings["BaseUrl"];
-            var apiKey = apiSettings["ApiKey"];
-
-            // Register ApiService with DI
+            var apiKey = apiSettings["ApiKey"];            // Register services
             builder.Services.AddSingleton(new MauiApp1.ApiService.ApiService(apiKey, baseUrl));
+
+            // Register views and viewmodels
+            builder.Services.AddTransient<MVVM.Views.OrdersPage>();
+            builder.Services.AddTransient<MVVM.ViewModel.OrdersPageViewModel>();
+            builder.Services.AddTransient<MVVM.Views.DeliveryTrackingPage>();
+            builder.Services.AddTransient<MVVM.ViewModel.DeliveryTrackingPageViewModel>();
 
 
             builder

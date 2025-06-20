@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using MauiApp1.ApiService;
 using MauiApp1.ModelAPI;
 
@@ -12,6 +13,7 @@ namespace MauiApp1.ApiService
     public class ApiService
     {
         private readonly HttpClient _client;
+        private readonly JsonSerializerOptions _jsonOptions;
 
         public ApiService(string apiKey, string baseUrl)
         {
@@ -28,6 +30,14 @@ namespace MauiApp1.ApiService
             _client.DefaultRequestHeaders.Accept.Clear();
             _client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
             _client.DefaultRequestHeaders.Add("ApiKey", apiKey);
+
+            _jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles,
+                WriteIndented = true
+            };
         }
 
         public async Task<List<Order>> GetOrdersAsync()
@@ -37,15 +47,18 @@ namespace MauiApp1.ApiService
                 var requestUrl = "api/Order";
                 var response = await _client.GetAsync(requestUrl);
                 var content = await response.Content.ReadAsStringAsync();
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
+                
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new HttpRequestException($"Error {(int)response.StatusCode}: {content}");
                 }
-                return JsonSerializer.Deserialize<List<Order>>(content, options) ?? new List<Order>();
+
+                var result = JsonSerializer.Deserialize<List<Order>>(content, _jsonOptions);
+                return result ?? new List<Order>();
+            }
+            catch (JsonException ex)
+            {
+                throw new Exception($"Error deserializing orders response: {ex.Message}", ex);
             }
             catch (Exception ex)
             {
@@ -57,22 +70,19 @@ namespace MauiApp1.ApiService
         {
             try
             {
-                var requestUrl = "api/DeliveryStates/DeliveryStates";
+                var requestUrl = "api/DeliveryStates/GetAllDeliveryStates";
                 var response = await _client.GetAsync(requestUrl);
                 var content = await response.Content.ReadAsStringAsync();
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new HttpRequestException($"Error {(int)response.StatusCode}: {content}");
-                }
-                return JsonSerializer.Deserialize<List<DeliveryState>>(content, options) ?? new List<DeliveryState>();
+                
+                response.EnsureSuccessStatusCode();
+
+                var states = JsonSerializer.Deserialize<List<DeliveryState>>(content, _jsonOptions);
+                return states ?? new List<DeliveryState>();
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error getting delivery states: {ex.Message}", ex);
+                Debug.WriteLine($"Error fetching delivery states: {ex.Message}");
+                throw;
             }
         }
 
@@ -83,15 +93,22 @@ namespace MauiApp1.ApiService
                 var requestUrl = $"api/DeliveryStates/StartDelivery?OrderId={orderId}";
                 var response = await _client.PostAsync(requestUrl, null);
                 var content = await response.Content.ReadAsStringAsync();
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
+
+                // Log the response for debugging
+                System.Diagnostics.Debug.WriteLine($"StartDelivery Response: {content}");
+
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new HttpRequestException($"Error {(int)response.StatusCode}: {content}");
                 }
-                return JsonSerializer.Deserialize<List<DeliveryState>>(content, options) ?? new List<DeliveryState>();
+
+                // Deserialize als enkele DeliveryState
+                var singleState = JsonSerializer.Deserialize<DeliveryState>(content, _jsonOptions);
+                return singleState != null ? new List<DeliveryState> { singleState } : new List<DeliveryState>();
+            }
+            catch (JsonException ex)
+            {
+                throw new Exception($"Error deserializing start delivery response: {ex.Message}", ex);
             }
             catch (Exception ex)
             {
@@ -123,28 +140,24 @@ namespace MauiApp1.ApiService
             {
                 throw new Exception($"Error updating delivery state: {ex.Message}", ex);
             }
-        }
-
-        public async Task<List<DeliveryState>> CompleteDeliveryAsync(int orderId)
+        }        public async Task<List<DeliveryState>> CompleteDeliveryAsync(int orderId)
         {
             try
             {
-                var requestUrl = $"api/DeliveryStates/CompleteDelivery?OrderId={orderId}";
+                var requestUrl = $"api/DeliveryStates/CompleteDelivery/{orderId}";
                 var response = await _client.PostAsync(requestUrl, null);
+                response.EnsureSuccessStatusCode();
+                
                 var content = await response.Content.ReadAsStringAsync();
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new HttpRequestException($"Error {(int)response.StatusCode}: {content}");
-                }
-                return JsonSerializer.Deserialize<List<DeliveryState>>(content, options) ?? new List<DeliveryState>();
+                Debug.WriteLine($"Complete delivery response: {content}");
+                
+                var states = JsonSerializer.Deserialize<List<DeliveryState>>(content, _jsonOptions);
+                return states ?? new List<DeliveryState>();
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error completing delivery: {ex.Message}", ex);
+                Debug.WriteLine($"Error completing delivery: {ex}");
+                throw;
             }
         }
 
@@ -184,6 +197,29 @@ namespace MauiApp1.ApiService
             catch (Exception ex)
             {
                 throw new Exception($"Error getting order by id: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<List<DeliveryState>> FinishDeliveryAsync(int orderId)
+        {
+            try
+            {
+                var requestUrl = $"api/Order/{orderId}/FinishDelivery";
+                var response = await _client.PostAsync(requestUrl, null);
+                var content = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new HttpRequestException($"Error: {response.StatusCode} - {content}");
+                }
+
+                var result = JsonSerializer.Deserialize<List<DeliveryState>>(content, _jsonOptions);
+                return result ?? new List<DeliveryState>();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in FinishDeliveryAsync: {ex}");
+                throw;
             }
         }
 

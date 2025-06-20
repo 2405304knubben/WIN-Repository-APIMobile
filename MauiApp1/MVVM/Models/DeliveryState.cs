@@ -1,13 +1,18 @@
+using System.Text.Json.Serialization;
+
 namespace MauiApp1.ModelAPI
 {
-    public class DeliveryState
+    public partial class DeliveryState
     {
         public int Id { get; set; }
         public DeliveryStateEnum State { get; set; }
         public DateTime DateTime { get; set; }
         public int OrderId { get; set; }
-        public Order Order { get; set; }
+        [JsonIgnore]
+        public Order? Order { get; set; }
         public int DeliveryServiceId { get; set; }
-        public DeliveryService DeliveryService { get; set; }
+        [JsonIgnore]
+        public DeliveryService? DeliveryService { get; set; }
+        public string StateDisplay => State.GetDisplayText();
     }
 }
