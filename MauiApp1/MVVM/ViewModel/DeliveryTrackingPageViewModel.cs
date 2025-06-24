@@ -1,9 +1,11 @@
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MauiApp1.ApiService;
 using MauiApp1.ModelAPI;
 using Microsoft.Maui.ApplicationModel;
-
+using Microsoft.Maui.Devices.Sensors;
+using System.Threading.Tasks;
 
 namespace MauiApp1.MVVM.ViewModel
 {
@@ -18,30 +20,22 @@ namespace MauiApp1.MVVM.ViewModel
         [ObservableProperty]
         private string? statusMessage;
 
+        [ObservableProperty]
+        private string? mapImageUrl;
+
+        [ObservableProperty]
+        private string? mapStatusMessage;
+
         public DeliveryState? LastDeliveryState => Order?.DeliveryStates?.OrderByDescending(s => s.DateTime).FirstOrDefault();
         public bool ShowStartButton => LastDeliveryState?.State == DeliveryStateEnum.Pending || LastDeliveryState == null;
         public bool ShowCompleteButton => LastDeliveryState?.State == DeliveryStateEnum.InTransit;
-        private string GetStatusMessage(DeliveryStateEnum? state)
-        {
-            return state switch
-            {
-                DeliveryStateEnum.Pending => "Klik op 'Start bezorging' om te beginnen",
-                DeliveryStateEnum.InTransit => "Bezorging is onderweg. Klik op 'Rond bezorging af' wanneer afgeleverd.",
-                DeliveryStateEnum.Delivered => "Bezorging is afgerond",
-                DeliveryStateEnum.Cancelled => "Bezorging is geannuleerd",
-                _ => "Status onbekend"
-            };
-        }
-
-        public void UpdateStatus()
-        {
-            StatusMessage = GetStatusMessage(LastDeliveryState?.State);
-        }
 
         public DeliveryTrackingPageViewModel(ApiService.ApiService apiService)
         {
             _apiService = apiService;
-        }        [RelayCommand]
+        }
+
+        [RelayCommand]
         private async Task StartDelivery()
         {
             if (Order == null) return;
@@ -50,10 +44,9 @@ namespace MauiApp1.MVVM.ViewModel
             {
                 StatusMessage = "Bezorging wordt gestart...";
                 var result = await _apiService.StartDeliveryAsync(Order.Id);
-                
+
                 if (result?.Any() == true)
                 {
-                    // Update alleen de delivery states, niet de hele order
                     Order.DeliveryStates = result;
                     UpdateStatus();
                     UpdateProperties();
@@ -87,14 +80,12 @@ namespace MauiApp1.MVVM.ViewModel
                 }
                 else
                 {
-                    // If the result is empty, it might mean the delivery is complete and we should refresh the order
                     Order = await _apiService.GetOrderByIdAsync(Order.Id);
                 }
 
                 UpdateStatus();
                 UpdateProperties();
 
-                // Wacht 0,5 seconde en trillen
                 await Task.Delay(500);
                 Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(500));
             }
@@ -104,7 +95,6 @@ namespace MauiApp1.MVVM.ViewModel
             }
         }
 
-
         private void UpdateProperties()
         {
             OnPropertyChanged(nameof(LastDeliveryState));
@@ -112,9 +102,46 @@ namespace MauiApp1.MVVM.ViewModel
             OnPropertyChanged(nameof(ShowCompleteButton));
         }
 
+        private string GetStatusMessage(DeliveryStateEnum? state)
+        {
+            return state switch
+            {
+                DeliveryStateEnum.Pending => "Klik op 'Start bezorging' om te beginnen",
+                DeliveryStateEnum.InTransit => "Bezorging is onderweg. Klik op 'Rond bezorging af' wanneer afgeleverd.",
+                DeliveryStateEnum.Delivered => "Bezorging is afgerond",
+                DeliveryStateEnum.Cancelled => "Bezorging is geannuleerd",
+                _ => "Status onbekend"
+            };
+        }
+
+        public void UpdateStatus()
+        {
+            StatusMessage = GetStatusMessage(LastDeliveryState?.State);
+        }
+
         partial void OnOrderChanged(Order? value)
         {
             UpdateProperties();
+            UpdateStatus();
+
+            // Mapbox static map logic
+            if (value?.Customer?.Address is not null && !string.IsNullOrWhiteSpace(value.Customer.Address))
+            {
+                // Amsterdam Centraal
+                double lat = 52.379189;
+                double lon = 4.899431;
+                MapImageUrl = string.Format(
+                    "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s-l+000({0},{1})/{0},{1},14,0/600x300?access_token=pk.eyJ1IjoibmllbHNjcmVtZXJzIiwiYSI6ImNtNHJsdjNxZzA2cWoya3BkcXp0M2l3N3EifQ.7g4Ms4TNd9ZJPD0EcDM_yw",
+                    lon.ToString(CultureInfo.InvariantCulture),
+                    lat.ToString(CultureInfo.InvariantCulture)
+                );
+                MapStatusMessage = null;
+            }
+            else
+            {
+                MapImageUrl = null;
+                MapStatusMessage = "Geen adres gevonden";
+            }
         }
     }
 }
