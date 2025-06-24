@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MauiApp1.ApiService;
 using MauiApp1.ModelAPI;
+using Microsoft.Maui.ApplicationModel;
 
 
 namespace MauiApp1.MVVM.ViewModel
@@ -73,17 +74,23 @@ namespace MauiApp1.MVVM.ViewModel
             if (Order == null) return;
 
             try
-            {                StatusMessage = "Bezorging wordt afgerond...";
+            {
+                StatusMessage = "Bezorging wordt afgerond...";
                 await _apiService.CompleteDeliveryAsync(Order.Id);
                 Order = await _apiService.GetOrderByIdAsync(Order.Id);
                 UpdateStatus();
                 UpdateProperties();
+
+                // Wacht 0,5 seconde en trillen
+                await Task.Delay(500);
+                Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(500));
             }
             catch (Exception ex)
             {
                 StatusMessage = $"Fout bij afronden bezorging: {ex.Message}";
             }
         }
+
 
         private void UpdateProperties()
         {
