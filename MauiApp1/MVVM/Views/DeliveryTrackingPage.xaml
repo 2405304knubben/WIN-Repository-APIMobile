@@ -46,24 +46,27 @@
 
             <!-- Mapbox Static Map -->
             <Border Stroke="#333333"
-        StrokeThickness="1"
-        Background="#2D2D2D"
-        Padding="0"
-        StrokeShape="RoundRectangle 8">
-                <VerticalStackLayout>
+                    StrokeThickness="1"
+                    Background="#2D2D2D"
+                    HeightRequest="300"
+                    Padding="0"
+                    StrokeShape="RoundRectangle 8">
+                <Grid>
                     <Image
-            HeightRequest="220"
-            Aspect="AspectFill"
-            Source="{Binding MapImageUrl}" 
-            IsVisible="{Binding MapImageUrl, Converter={StaticResource StringNotNullOrEmptyConverter}}" />
+                        Aspect="AspectFill"
+                        Source="{Binding MapImageUrl}" 
+                        IsVisible="{Binding MapImageUrl, Converter={StaticResource StringNotNullOrEmptyConverter}}"
+                        BackgroundColor="#2D2D2D" />
                     <Label
-            Text="{Binding MapStatusMessage}"
-            TextColor="White"
-            FontSize="16"
-            HorizontalOptions="Center"
-            VerticalOptions="Center"
-            IsVisible="{Binding MapStatusMessage, Converter={StaticResource StringNotNullOrEmptyConverter}}" />
-                </VerticalStackLayout>
+                        Text="{Binding MapStatusMessage}"
+                        TextColor="White"
+                        FontSize="16"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        Margin="16"
+                        IsVisible="{Binding MapStatusMessage, Converter={StaticResource StringNotNullOrEmptyConverter}}" />
+                </Grid>
             </Border>
 
             <!-- Status History -->

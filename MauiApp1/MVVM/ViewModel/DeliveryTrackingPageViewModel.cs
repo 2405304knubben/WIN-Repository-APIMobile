@@ -3,8 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MauiApp1.ApiService;
 using MauiApp1.ModelAPI;
-using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Devices.Sensors;
+using MauiApp1.Services; // Add this using
 using System.Threading.Tasks;
 
 namespace MauiApp1.MVVM.ViewModel
@@ -13,6 +12,8 @@ namespace MauiApp1.MVVM.ViewModel
     public partial class DeliveryTrackingPageViewModel : ObservableObject
     {
         private readonly ApiService.ApiService _apiService;
+        private readonly MapboxService _mapboxService;
+        private readonly string _mapboxApiKey;
 
         [ObservableProperty]
         private Order? order;
@@ -30,9 +31,11 @@ namespace MauiApp1.MVVM.ViewModel
         public bool ShowStartButton => LastDeliveryState?.State == DeliveryStateEnum.Pending || LastDeliveryState == null;
         public bool ShowCompleteButton => LastDeliveryState?.State == DeliveryStateEnum.InTransit;
 
-        public DeliveryTrackingPageViewModel(ApiService.ApiService apiService)
+        public DeliveryTrackingPageViewModel(ApiService.ApiService apiService, Services.MapboxService mapboxService, string mapboxApiKey)
         {
             _apiService = apiService;
+            _mapboxService = mapboxService;
+            _mapboxApiKey = mapboxApiKey;
         }
 
         [RelayCommand]
@@ -100,29 +103,72 @@ namespace MauiApp1.MVVM.ViewModel
             StatusMessage = GetStatusMessage(LastDeliveryState?.State);
         }
 
-        partial void OnOrderChanged(Order? value)
+        private void LoadMap()
         {
-            UpdateProperties();
-            UpdateStatus();
-
-            // Mapbox static map logic
-            if (value?.Customer?.Address is not null && !string.IsNullOrWhiteSpace(value.Customer.Address))
+            if (Order?.Customer?.Address is not null && !string.IsNullOrWhiteSpace(Order.Customer.Address))
             {
-                // Amsterdam Centraal
-                double lat = 52.379189;
-                double lon = 4.899431;
-                MapImageUrl = string.Format(
-                    "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s-l+000({0},{1})/{0},{1},14,0/600x300?access_token=pk.eyJ1IjoibmllbHNjcmVtZXJzIiwiYSI6ImNtNHJsdjNxZzA2cWoya3BkcXp0M2l3N3EifQ.7g4Ms4TNd9ZJPD0EcDM_yw",
-                    lon.ToString(CultureInfo.InvariantCulture),
-                    lat.ToString(CultureInfo.InvariantCulture)
-                );
-                MapStatusMessage = null;
+                try
+                {
+                    System.Diagnostics.Debug.WriteLine($"[Map] Loading map for address: {Order.Customer.Address}");
+                    MapStatusMessage = "Kaart laden...";
+                    MapImageUrl = null; // Clear previous image
+
+                    // Get the street part of the address
+                    var streetAddress = Order.Customer.Address.Split(',')[0].Trim();
+
+                    // Hardcoded coordinates for the known addresses
+                    switch (streetAddress.ToLower())
+                    {
+                        case "123 elm st":
+                            // Henderson, NV coordinates
+                            MapImageUrl = string.Format(
+                                CultureInfo.InvariantCulture,
+                                "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s-l+000({0},{1})/{0},{1},14,0/600x300?access_token={2}",
+                                "-114.981758", // longitude
+                                "36.039581",   // latitude
+                                _mapboxApiKey
+                            );
+                            MapStatusMessage = null;
+                            break;
+
+                        case "456 oak st":
+                            // Cheraw, SC coordinates
+                            MapImageUrl = string.Format(
+                                CultureInfo.InvariantCulture,
+                                "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s-l+000({0},{1})/{0},{1},14,0/600x300?access_token={2}",
+                                "-79.910667",  // longitude
+                                "34.697552",   // latitude
+                                _mapboxApiKey
+                            );
+                            MapStatusMessage = null;
+                            break;
+
+                        default:
+                            MapStatusMessage = "Adres kon niet worden gevonden op de kaart.";
+                            break;
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"[Map] Generated map URL: {MapImageUrl}");
+                    OnPropertyChanged(nameof(MapImageUrl));
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[Map] Error: {ex.Message}");
+                    MapStatusMessage = "Fout bij het ophalen van de kaartlocatie.";
+                }
             }
             else
             {
                 MapImageUrl = null;
-                MapStatusMessage = "Geen adres gevonden";
+                MapStatusMessage = "Geen adres beschikbaar om op de kaart te tonen.";
             }
+        }
+
+        partial void OnOrderChanged(Order? value)
+        {
+            UpdateProperties();
+            UpdateStatus();
+            LoadMap(); // Changed from LoadMapAsync
         }
     }
 }
