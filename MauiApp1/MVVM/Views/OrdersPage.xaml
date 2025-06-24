@@ -74,17 +74,22 @@
                                     BackgroundColor="#007AFF"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:OrdersPageViewModel}}, Path=GoToDeliveryTrackingCommand}"
                                     CommandParameter="{Binding .}"
-                                    IsEnabled="{Binding DeliveryStates, Converter={StaticResource CanStartDeliveryConverter}}"/>
+                                    IsEnabled="{Binding ., Converter={StaticResource CanInteractWithOrderConverter}}"/>
                             </SwipeItems>
                         </SwipeView.RightItems>
 
                         <!-- Buitenste Grid met één rij -->
                         <Grid RowDefinitions="Auto">
                             <Border StrokeShape="RoundRectangle 8"
-                                        Background="#2D2D2D"
-                                        Margin="0,0,0,16"
-                                        Padding="0"
-                                        Opacity="{Binding ., Converter={StaticResource CanInteractWithOrderConverter}}">
+                                    Background="#2D2D2D"
+                                    Margin="0,0,0,16"
+                                    Padding="0"
+                                    Opacity="{Binding ., Converter={StaticResource CanInteractWithOrderConverter}, ConverterParameter='Opacity'}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer 
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:OrdersPageViewModel}}, Path=GoToDeliveryTrackingCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
                                 <!-- Binnenste Grid met 2 kolommen (info + knop) -->
                                 <Grid ColumnDefinitions="*,Auto"
                                         RowDefinitions="Auto,Auto,Auto,Auto"

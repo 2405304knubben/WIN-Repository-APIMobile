@@ -2,9 +2,9 @@ namespace MauiApp1.ModelAPI
 {
     public enum DeliveryStateEnum
     {
-        Pending,
-        InTransit,
-        Delivered,
-        Cancelled
+        Pending = 1,
+        InTransit = 2,
+        Delivered = 3,
+        Cancelled = 4
     }
 }

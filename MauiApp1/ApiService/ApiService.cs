@@ -92,27 +92,22 @@ namespace MauiApp1.ApiService
             {
                 var requestUrl = $"api/DeliveryStates/StartDelivery?OrderId={orderId}";
                 var response = await _client.PostAsync(requestUrl, null);
-                var content = await response.Content.ReadAsStringAsync();
-
-                // Log the response for debugging
-                System.Diagnostics.Debug.WriteLine($"StartDelivery Response: {content}");
 
                 if (!response.IsSuccessStatusCode)
                 {
+                    var content = await response.Content.ReadAsStringAsync();
+                    System.Diagnostics.Debug.WriteLine($"StartDelivery Error Response: {content}");
                     throw new HttpRequestException($"Error {(int)response.StatusCode}: {content}");
                 }
 
-                // Deserialize als enkele DeliveryState
-                var singleState = JsonSerializer.Deserialize<DeliveryState>(content, _jsonOptions);
-                return singleState != null ? new List<DeliveryState> { singleState } : new List<DeliveryState>();
-            }
-            catch (JsonException ex)
-            {
-                throw new Exception($"Error deserializing start delivery response: {ex.Message}", ex);
+                // The API call was successful. Now, get the updated order to reflect the new state.
+                var updatedOrder = await GetOrderByIdAsync(orderId);
+                return updatedOrder?.DeliveryStates ?? new List<DeliveryState>();
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error starting delivery: {ex.Message}", ex);
+                System.Diagnostics.Debug.WriteLine($"Error in StartDeliveryAsync: {ex.Message}");
+                throw;
             }
         }
 
@@ -144,19 +139,23 @@ namespace MauiApp1.ApiService
         {
             try
             {
-                var requestUrl = $"api/DeliveryStates/CompleteDelivery/{orderId}";
+                var requestUrl = $"api/DeliveryStates/CompleteDelivery?OrderId={orderId}";
                 var response = await _client.PostAsync(requestUrl, null);
-                response.EnsureSuccessStatusCode();
-                
-                var content = await response.Content.ReadAsStringAsync();
-                Debug.WriteLine($"Complete delivery response: {content}");
-                
-                var states = JsonSerializer.Deserialize<List<DeliveryState>>(content, _jsonOptions);
-                return states ?? new List<DeliveryState>();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    System.Diagnostics.Debug.WriteLine($"CompleteDelivery Error Response: {content}");
+                    throw new HttpRequestException($"Error {(int)response.StatusCode}: {content}");
+                }
+
+                // The API call was successful. Now, get the updated order to reflect the new state.
+                var updatedOrder = await GetOrderByIdAsync(orderId);
+                return updatedOrder?.DeliveryStates ?? new List<DeliveryState>();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error completing delivery: {ex}");
+                System.Diagnostics.Debug.WriteLine($"Error in CompleteDeliveryAsync: {ex.Message}");
                 throw;
             }
         }
