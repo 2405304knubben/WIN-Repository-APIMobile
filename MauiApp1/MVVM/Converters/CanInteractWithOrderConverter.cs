@@ -12,18 +12,28 @@ namespace MauiApp1.MVVM.Converters
                 var lastState = order.DeliveryStates?.OrderByDescending(s => s.DateTime).FirstOrDefault();
                 var lastStateEnum = lastState?.State;
 
-                if (parameter is bool invertLogic && invertLogic)
+                // Een bestelling is interactief als de status 'Pending' of 'InTransit' is.
+                bool isInteractive = lastStateEnum == DeliveryStateEnum.Pending || lastStateEnum == DeliveryStateEnum.InTransit || lastState == null;
+
+                if (parameter is string param && param == "Opacity")
                 {
-                    // Voor InputTransparent: true betekent niet-klikbaar
-                    // Alleen niet-klikbaar maken als het DELIVERED is
-                    return lastStateEnum == DeliveryStateEnum.Delivered;
+                    return isInteractive ? 1.0 : 0.5;
                 }
-                
-                // Voor opacity: 1.0 voor actief, 0.5 voor delivered
-                return lastStateEnum == DeliveryStateEnum.Delivered ? 0.5 : 1.0;
+
+                if (parameter is string paramFlag && paramFlag == "InputTransparent")
+                {
+                    // InputTransparent: true betekent niet-klikbaar.
+                    return !isInteractive;
+                }
+
+                return isInteractive;
             }
-            
-            return parameter is bool inv && inv ? false : 1.0;
+
+            // Standaardgedrag
+            if (parameter is string p && p == "Opacity") return 1.0;
+            if (parameter is string p2 && p2 == "InputTransparent") return false;
+
+            return true;
         }
 
         public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

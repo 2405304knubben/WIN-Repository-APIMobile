@@ -18,14 +18,17 @@ namespace MauiApp1.MVVM.ViewModel
         [ObservableProperty]
         private string? statusMessage;
 
-        public DeliveryState? LastDeliveryState => Order?.DeliveryStates?.OrderByDescending(s => s.DateTime).FirstOrDefault();        public bool ShowStartButton => LastDeliveryState?.State == DeliveryStateEnum.Pending || LastDeliveryState == null;
-        public bool ShowCompleteButton => LastDeliveryState?.State == DeliveryStateEnum.InTransit;        private string GetStatusMessage(DeliveryStateEnum? state)
+        public DeliveryState? LastDeliveryState => Order?.DeliveryStates?.OrderByDescending(s => s.DateTime).FirstOrDefault();
+        public bool ShowStartButton => LastDeliveryState?.State == DeliveryStateEnum.Pending || LastDeliveryState == null;
+        public bool ShowCompleteButton => LastDeliveryState?.State == DeliveryStateEnum.InTransit;
+        private string GetStatusMessage(DeliveryStateEnum? state)
         {
             return state switch
             {
                 DeliveryStateEnum.Pending => "Klik op 'Start bezorging' om te beginnen",
                 DeliveryStateEnum.InTransit => "Bezorging is onderweg. Klik op 'Rond bezorging af' wanneer afgeleverd.",
                 DeliveryStateEnum.Delivered => "Bezorging is afgerond",
+                DeliveryStateEnum.Cancelled => "Bezorging is geannuleerd",
                 _ => "Status onbekend"
             };
         }
@@ -76,8 +79,18 @@ namespace MauiApp1.MVVM.ViewModel
             try
             {
                 StatusMessage = "Bezorging wordt afgerond...";
-                await _apiService.CompleteDeliveryAsync(Order.Id);
-                Order = await _apiService.GetOrderByIdAsync(Order.Id);
+                var result = await _apiService.CompleteDeliveryAsync(Order.Id);
+
+                if (result?.Any() == true)
+                {
+                    Order.DeliveryStates = result;
+                }
+                else
+                {
+                    // If the result is empty, it might mean the delivery is complete and we should refresh the order
+                    Order = await _apiService.GetOrderByIdAsync(Order.Id);
+                }
+
                 UpdateStatus();
                 UpdateProperties();
 
