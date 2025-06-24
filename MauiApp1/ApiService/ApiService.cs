@@ -86,7 +86,7 @@ namespace MauiApp1.ApiService
             }
         }
 
-        public async Task<List<DeliveryState>> StartDeliveryAsync(int orderId)
+        public async Task StartDeliveryAsync(int orderId)
         {
             try
             {
@@ -99,10 +99,6 @@ namespace MauiApp1.ApiService
                     System.Diagnostics.Debug.WriteLine($"StartDelivery Error Response: {content}");
                     throw new HttpRequestException($"Error {(int)response.StatusCode}: {content}");
                 }
-
-                // The API call was successful. Now, get the updated order to reflect the new state.
-                var updatedOrder = await GetOrderByIdAsync(orderId);
-                return updatedOrder?.DeliveryStates ?? new List<DeliveryState>();
             }
             catch (Exception ex)
             {
@@ -111,31 +107,7 @@ namespace MauiApp1.ApiService
             }
         }
 
-        public async Task<List<DeliveryState>> UpdateDeliveryStateAsync(DeliveryState deliveryState)
-        {
-            try
-            {
-                var requestUrl = "api/DeliveryStates/UpdateDeliveryState";
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    PropertyNameCaseInsensitive = true
-                };
-                var content = JsonSerializer.Serialize(deliveryState, options);
-                var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
-                var response = await _client.PostAsync(requestUrl, httpContent);
-                var responseContent = await response.Content.ReadAsStringAsync();
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new HttpRequestException($"Error {(int)response.StatusCode}: {responseContent}");
-                }
-                return JsonSerializer.Deserialize<List<DeliveryState>>(responseContent, options) ?? new List<DeliveryState>();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error updating delivery state: {ex.Message}", ex);
-            }
-        }        public async Task<List<DeliveryState>> CompleteDeliveryAsync(int orderId)
+        public async Task CompleteDeliveryAsync(int orderId)
         {
             try
             {
@@ -148,10 +120,6 @@ namespace MauiApp1.ApiService
                     System.Diagnostics.Debug.WriteLine($"CompleteDelivery Error Response: {content}");
                     throw new HttpRequestException($"Error {(int)response.StatusCode}: {content}");
                 }
-
-                // The API call was successful. Now, get the updated order to reflect the new state.
-                var updatedOrder = await GetOrderByIdAsync(orderId);
-                return updatedOrder?.DeliveryStates ?? new List<DeliveryState>();
             }
             catch (Exception ex)
             {
@@ -176,11 +144,11 @@ namespace MauiApp1.ApiService
             }
         }
 
-        public async Task<Order?> GetOrderByIdAsync(int id)
+        public async Task<Order> GetOrderByIdAsync(int orderId)
         {
             try
             {
-                var requestUrl = $"api/Order/{id}";
+                var requestUrl = $"api/Order/{orderId}";
                 var response = await _client.GetAsync(requestUrl);
                 var content = await response.Content.ReadAsStringAsync();
                 var options = new JsonSerializerOptions

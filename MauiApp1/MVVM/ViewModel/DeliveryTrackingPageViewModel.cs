@@ -43,18 +43,8 @@ namespace MauiApp1.MVVM.ViewModel
             try
             {
                 StatusMessage = "Bezorging wordt gestart...";
-                var result = await _apiService.StartDeliveryAsync(Order.Id);
-
-                if (result?.Any() == true)
-                {
-                    Order.DeliveryStates = result;
-                    UpdateStatus();
-                    UpdateProperties();
-                }
-                else
-                {
-                    StatusMessage = "Fout bij starten: Geen status ontvangen";
-                }
+                await _apiService.StartDeliveryAsync(Order.Id);
+                Order = await _apiService.GetOrderByIdAsync(Order.Id); // Refresh order data
                 UpdateStatus();
                 UpdateProperties();
             }
@@ -72,17 +62,8 @@ namespace MauiApp1.MVVM.ViewModel
             try
             {
                 StatusMessage = "Bezorging wordt afgerond...";
-                var result = await _apiService.CompleteDeliveryAsync(Order.Id);
-
-                if (result?.Any() == true)
-                {
-                    Order.DeliveryStates = result;
-                }
-                else
-                {
-                    Order = await _apiService.GetOrderByIdAsync(Order.Id);
-                }
-
+                await _apiService.CompleteDeliveryAsync(Order.Id);
+                Order = await _apiService.GetOrderByIdAsync(Order.Id); // Refresh order data
                 UpdateStatus();
                 UpdateProperties();
 
