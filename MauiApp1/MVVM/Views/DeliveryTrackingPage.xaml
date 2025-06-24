@@ -32,7 +32,8 @@
                     <Label Text="{Binding Order.Customer.Name}"
                            TextColor="White"/>
                     <Label Text="{Binding Order.Customer.Address}"
-                           TextColor="White"/>                    <Label Text="{Binding Order.OrderDate, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
+                           TextColor="White"/>
+                    <Label Text="{Binding Order.OrderDate, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
                            TextColor="White"/>
                 </VerticalStackLayout>
             </Border>
@@ -42,6 +43,18 @@
                    FontSize="18"
                    TextColor="#9747FF"
                    HorizontalOptions="Center"/>
+
+            <!-- Mapbox Static Map -->
+            <Border Stroke="#333333"
+                   StrokeThickness="1"
+                   Background="#2D2D2D"
+                   Padding="0"
+                   StrokeShape="RoundRectangle 8">
+                <Image
+                    HeightRequest="220"
+                    Aspect="AspectFill"
+                    Source="{Binding MapImageUrl}" />
+            </Border>
 
             <!-- Status History -->
             <Label Text="Bezorggeschiedenis"
