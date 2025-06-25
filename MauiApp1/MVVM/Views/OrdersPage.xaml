@@ -85,21 +85,20 @@
                 Margin="0,0,0,0"/>
         </Grid>
 
-       
+        <!-- Status message en loader -->
         <StackLayout Grid.Row="2" Margin="0,0,0,8" Spacing="4">
             <Label Text="{Binding StatusMessage}"
-           TextColor="White"
-           FontAttributes="Italic"
-           FontSize="14"/>
+                   TextColor="White"
+                   FontAttributes="Italic"
+                   FontSize="14"/>
             <ActivityIndicator 
-        IsVisible="{Binding IsLoading}" 
-        IsRunning="{Binding IsLoading}" 
-        Color="#9747FF"
-        HeightRequest="32"
-        WidthRequest="32"
-        HorizontalOptions="Center"/>
+                IsVisible="{Binding IsLoading}" 
+                IsRunning="{Binding IsLoading}" 
+                Color="#9747FF"
+                HeightRequest="32"
+                WidthRequest="32"
+                HorizontalOptions="Center"/>
         </StackLayout>
-
 
         <!-- Orders List -->
         <CollectionView Grid.Row="4"
@@ -119,7 +118,9 @@
                         </SwipeView.RightItems>
 
                         <Grid RowDefinitions="Auto">
-                            <Border StrokeShape="RoundRectangle 8"
+                            <Border x:Name="OrderBorder"
+                                    Loaded="OrderBorder_Loaded"
+                                    StrokeShape="RoundRectangle 8"
                                     Background="#2D2D2D"
                                     Margin="0,0,0,16"
                                     Padding="0"
@@ -127,7 +128,8 @@
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer 
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:OrdersPageViewModel}}, Path=GoToDeliveryTrackingCommand}"
-                                        CommandParameter="{Binding .}" />
+                                        CommandParameter="{Binding .}" 
+                                        Tapped="OnTapped"/>
                                 </Border.GestureRecognizers>
                                 <Grid ColumnDefinitions="*,Auto"
                                         RowDefinitions="Auto,Auto,Auto,Auto"

@@ -4,8 +4,10 @@ using MauiApp1.ApiService;
 namespace MauiApp1.MVVM.Views
 {
     public partial class OrdersPage : ContentPage
-    {        private readonly OrdersPageViewModel _viewModel;
-        
+    {
+        private readonly OrdersPageViewModel _viewModel;
+        private int _animatedCount = 0;
+
         public OrdersPage(OrdersPageViewModel viewModel)
         {
             InitializeComponent();
@@ -13,12 +15,36 @@ namespace MauiApp1.MVVM.Views
             BindingContext = _viewModel;
         }
 
+        // Tap animatie (schalen)
         private async void OnTapped(object sender, EventArgs e)
         {
-            var view = sender as View;
-            await view.ScaleTo(0.95, 100);
-            await view.ScaleTo(1, 100);
+            if (sender is View view)
+            {
+                await view.ScaleTo(0.95, 100);
+                await view.ScaleTo(1, 100);
+            }
         }
 
+        // Fade-in + slide-in animatie voor de eerste 10 items
+        private async void OrderBorder_Loaded(object sender, EventArgs e)
+        {
+            if (_animatedCount >= 10)
+                return;
+
+            if (sender is Border border)
+            {
+                border.TranslationX = -50;
+                border.Opacity = 0;
+
+                int index = _animatedCount;
+                _animatedCount++;
+
+                await Task.Delay(index * 100);
+
+                var fadeTask = border.FadeTo(1, 350, Easing.CubicInOut);
+                var moveTask = border.TranslateTo(0, 0, 350, Easing.CubicOut);
+                await Task.WhenAll(fadeTask, moveTask);
+            }
+        }
     }
 }
