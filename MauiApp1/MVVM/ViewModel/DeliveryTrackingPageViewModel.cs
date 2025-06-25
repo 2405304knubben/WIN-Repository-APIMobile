@@ -70,8 +70,10 @@ namespace MauiApp1.MVVM.ViewModel
                 UpdateStatus();
                 UpdateProperties();
 
-                await Task.Delay(500);
-                Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(500));
+                #if ANDROID || IOS
+                    await Task.Delay(500);
+                    Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(500));
+                #endif
             }
             catch (Exception ex)
             {
