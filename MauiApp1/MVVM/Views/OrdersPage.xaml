@@ -17,10 +17,19 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
+
     <Grid RowDefinitions="Auto,Auto,*" Padding="16,8">
-        <!-- Header met Filters -->
-        <Grid Grid.Row="0" ColumnSpacing="0" Margin="0,0,0,15" HeightRequest="44">
+        <!-- Checkbox voor vandaag -->
+        <HorizontalStackLayout Grid.Row="1" Margin="0,0,0,8">
+            <CheckBox IsChecked="{Binding OnlyToday}" Color="#9747FF"/>
+            <Label Text="Alleen bestellingen van vandaag" TextColor="White" VerticalOptions="Center"/>
+        </HorizontalStackLayout>
+
+        <!-- Filterknoppen -->
+        <Grid Grid.Row="0" ColumnSpacing="0" Margin="0,0,0,15" HeightRequest="60">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="1" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="1" />
                 <ColumnDefinition Width="*" />
@@ -29,37 +38,42 @@
             </Grid.ColumnDefinitions>
 
             <Button Grid.Column="0"
-                    Text="Alle bestellingen"
-                    Command="{Binding ShowAllOrdersCommand}"
-                    BackgroundColor="#9747FF"
-                    TextColor="White"
-                    Padding="0"
-                    CornerRadius="0"/>
-            <BoxView Grid.Column="1"
-                     WidthRequest="1"
-                     BackgroundColor="White"
-                     Opacity="0.2"
-                     VerticalOptions="Fill"/>
+                Text="Alle"
+                Command="{Binding ShowAllOrdersCommand}"
+                BackgroundColor="#9747FF"
+                TextColor="White"
+                Padding="0"
+                CornerRadius="0"
+                Opacity="{Binding AllOrdersButtonOpacity}"/>
+            <BoxView Grid.Column="1" WidthRequest="1" BackgroundColor="White" Opacity="0.2" VerticalOptions="Fill"/>
             <Button Grid.Column="2"
-                    Text="Bestellingen van vandaag"
-                    Command="{Binding ShowTodayOrdersCommand}"
-                    BackgroundColor="#9747FF"
-                    TextColor="White"
-                    Padding="0"
-                    CornerRadius="0"/>
-            <BoxView Grid.Column="3"
-                     WidthRequest="1"
-                     BackgroundColor="White"
-                     Opacity="0.2"
-                     VerticalOptions="Fill"/>
+                Text="Niet gestart"
+                Command="{Binding ShowPendingOrdersCommand}"
+                BackgroundColor="#9747FF"
+                TextColor="White"
+                Padding="0"
+                CornerRadius="0"
+                Opacity="{Binding PendingButtonOpacity}"/>
+            <BoxView Grid.Column="3" WidthRequest="1" BackgroundColor="White" Opacity="0.2" VerticalOptions="Fill"/>
             <Button Grid.Column="4"
-                    Text="Actieve bestellingen"
-                    Command="{Binding ShowActiveOrdersCommand}"
-                    BackgroundColor="#9747FF"
-                    TextColor="White"
-                    Padding="0"
-                    CornerRadius="0"/>
+                Text="Onderweg"
+                Command="{Binding ShowInTransitOrdersCommand}"
+                BackgroundColor="#9747FF"
+                TextColor="White"
+                Padding="0"
+                CornerRadius="0"
+                Opacity="{Binding InTransitButtonOpacity}"/>
+            <BoxView Grid.Column="5" WidthRequest="1" BackgroundColor="White" Opacity="0.2" VerticalOptions="Fill"/>
+            <Button Grid.Column="6"
+                Text="Bezorgd"
+                Command="{Binding ShowDeliveredOrdersCommand}"
+                BackgroundColor="#9747FF"
+                TextColor="White"
+                Padding="0"
+                CornerRadius="0"
+                Opacity="{Binding DeliveredButtonOpacity}"/>
         </Grid>
+
 
         <!-- Orders List -->
         <CollectionView Grid.Row="2"
@@ -97,10 +111,10 @@
 
                                     <!-- Order info links -->
                                     <Label Grid.Row="0" Grid.Column="0"
-                       Text="{Binding Id, StringFormat='Order #{0}'}"
-                       TextColor="White"
-                       FontSize="20"
-                       FontAttributes="Bold"/>
+                                            Text="{Binding Id, StringFormat='Order #{0}'}"
+                                            TextColor="White"
+                                            FontSize="20"
+                                            FontAttributes="Bold"/>
 
                                     <VerticalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
                                      InputTransparent="{Binding ., Converter={StaticResource CanInteractWithOrderConverter}, ConverterParameter=true}">

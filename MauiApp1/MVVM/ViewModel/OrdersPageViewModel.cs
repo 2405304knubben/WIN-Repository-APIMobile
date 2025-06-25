@@ -7,6 +7,14 @@ using System.Collections.ObjectModel;
 
 namespace MauiApp1.MVVM.ViewModel
 {
+    public enum OrdersFilter
+    {
+        All,
+        Pending,
+        InTransit,
+        Delivered
+    }
+
     public partial class OrdersPageViewModel : ObservableObject
     {
         private readonly ApiService.ApiService _apiService;
@@ -14,16 +22,21 @@ namespace MauiApp1.MVVM.ViewModel
 
         public ObservableCollection<Order> Orders { get; } = new();
 
-        // Gebruik partial properties voor WinRT compatibiliteit
         [ObservableProperty]
         private string? statusMessage;
+
+        [ObservableProperty]
+        private OrdersFilter currentFilter = OrdersFilter.All;
+
+        public double AllOrdersButtonOpacity => CurrentFilter == OrdersFilter.All ? 1.0 : 0.5;
+        public double PendingButtonOpacity => CurrentFilter == OrdersFilter.Pending ? 1.0 : 0.5;
+        public double InTransitButtonOpacity => CurrentFilter == OrdersFilter.InTransit ? 1.0 : 0.5;
+        public double DeliveredButtonOpacity => CurrentFilter == OrdersFilter.Delivered ? 1.0 : 0.5;
 
         public OrdersPageViewModel(ApiService.ApiService apiService)
         {
             _apiService = apiService;
             LoadOrdersCommand.Execute(null);
-
-            // Subscribe to navigation events to refresh when returning to this page
             Shell.Current.Navigating += Current_Navigating;
         }
 
@@ -33,7 +46,9 @@ namespace MauiApp1.MVVM.ViewModel
             {
                 LoadOrdersCommand.Execute(null);
             }
-        }        [RelayCommand]
+        }
+
+        [RelayCommand]
         public async Task LoadOrders()
         {
             try
@@ -43,32 +58,25 @@ namespace MauiApp1.MVVM.ViewModel
                 var statesTask = _apiService.GetAllDeliveryStatesAsync();
 
                 await Task.WhenAll(ordersTask, statesTask);
-                
+
                 var orders = ordersTask.Result;
                 var allStates = statesTask.Result;
 
-                // Group states by order ID for quick lookup
                 var statesByOrderId = allStates.GroupBy(s => s.OrderId)
-                                             .ToDictionary(g => g.Key, g => g.ToList());
+                                               .ToDictionary(g => g.Key, g => g.ToList());
 
                 _allOrders.Clear();
                 if (orders != null)
                 {
                     foreach (var order in orders)
                     {
-                        // Update delivery states from API
                         if (statesByOrderId.TryGetValue(order.Id, out var states))
-                        {
                             order.DeliveryStates = states;
-                        }
                         else
-                        {
                             order.DeliveryStates = new List<DeliveryState>();
-                        }
                         _allOrders.Add(order);
                     }
-                    ShowTodayOrders();
-                    StatusMessage = $"Orders van vandaag opgehaald: {Orders.Count}";
+                    ApplyFilter();
                 }
 
                 if (!Orders.Any())
@@ -83,38 +91,106 @@ namespace MauiApp1.MVVM.ViewModel
         [RelayCommand]
         private void ShowAllOrders()
         {
-            Orders.Clear();
-            foreach (var order in _allOrders)
-            {
-                Orders.Add(order);
-            }
-            StatusMessage = $"Alle orders ({Orders.Count})";
+            CurrentFilter = OrdersFilter.All;
+            ApplyFilter();
         }
 
         [RelayCommand]
-        private void ShowTodayOrders()
+        private void ShowPendingOrders()
         {
-            var today = DateTime.Today;
-            Orders.Clear();
-            foreach (var order in _allOrders.Where(o => o.OrderDate.Date == today))
-            {
-                Orders.Add(order);
-            }
-            StatusMessage = $"Orders van vandaag ({Orders.Count})";
+            CurrentFilter = OrdersFilter.Pending;
+            ApplyFilter();
         }
 
         [RelayCommand]
-        private void ShowActiveOrders()
+        private void ShowInTransitOrders()
+        {
+            CurrentFilter = OrdersFilter.InTransit;
+            ApplyFilter();
+        }
+
+        [RelayCommand]
+        private void ShowDeliveredOrders()
+        {
+            CurrentFilter = OrdersFilter.Delivered;
+            ApplyFilter();
+        }
+
+        private void ApplyFilter()
         {
             Orders.Clear();
-            foreach (var order in _allOrders.Where(o => 
-                o.DeliveryStates == null || 
-                !o.DeliveryStates.Any() || 
-                o.DeliveryStates.LastOrDefault()?.State != DeliveryStateEnum.Delivered))
+            IEnumerable<Order> filtered = _allOrders;
+
+            // Filter op status
+            switch (CurrentFilter)
+            {
+                case OrdersFilter.Pending:
+                    filtered = filtered.Where(o =>
+                        o.DeliveryStates == null ||
+                        !o.DeliveryStates.Any() ||
+                        o.DeliveryStates.OrderByDescending(s => s.DateTime).FirstOrDefault()?.State == DeliveryStateEnum.Pending
+                    );
+                    StatusMessage = $"Niet gestarte bestellingen ({filtered.Count()})";
+                    break;
+                case OrdersFilter.InTransit:
+                    filtered = filtered.Where(o =>
+                        o.DeliveryStates != null &&
+                        o.DeliveryStates.Any() &&
+                        o.DeliveryStates.OrderByDescending(s => s.DateTime).FirstOrDefault()?.State == DeliveryStateEnum.InTransit
+                    );
+                    StatusMessage = $"Onderweg ({filtered.Count()})";
+                    break;
+                case OrdersFilter.Delivered:
+                    filtered = filtered.Where(o =>
+                        o.DeliveryStates != null &&
+                        o.DeliveryStates.Any() &&
+                        o.DeliveryStates.OrderByDescending(s => s.DateTime).FirstOrDefault()?.State == DeliveryStateEnum.Delivered
+                    );
+                    StatusMessage = $"Bezorgd ({filtered.Count()})";
+                    break;
+                case OrdersFilter.All:
+                default:
+                    StatusMessage = $"Alle bestellingen ({filtered.Count()})";
+                    break;
+            }
+
+            // Filter op vandaag als de checkbox aan staat
+            if (OnlyToday)
+            {
+                var today = DateTime.Today;
+                filtered = filtered.Where(o => o.OrderDate.Date == today);
+                StatusMessage += " (vandaag)";
+            }
+
+            foreach (var order in filtered
+                .OrderBy(o => GetLastState(o) == DeliveryStateEnum.Delivered)
+                .ThenByDescending(o => o.OrderDate))
             {
                 Orders.Add(order);
             }
-            StatusMessage = $"Actieve orders ({Orders.Count})";
+        }
+        [ObservableProperty]
+        private bool onlyToday;
+
+
+        partial void OnOnlyTodayChanged(bool value)
+        {
+            ApplyFilter();
+        }
+
+
+
+        private DeliveryStateEnum? GetLastState(Order order)
+        {
+            return order.DeliveryStates?.OrderByDescending(s => s.DateTime).FirstOrDefault()?.State;
+        }
+
+        partial void OnCurrentFilterChanged(OrdersFilter value)
+        {
+            OnPropertyChanged(nameof(AllOrdersButtonOpacity));
+            OnPropertyChanged(nameof(PendingButtonOpacity));
+            OnPropertyChanged(nameof(InTransitButtonOpacity));
+            OnPropertyChanged(nameof(DeliveredButtonOpacity));
         }
 
         [RelayCommand]
@@ -129,29 +205,6 @@ namespace MauiApp1.MVVM.ViewModel
             };
 
             await Shell.Current.GoToAsync($"DeliveryTrackingPage", parameters);
-        }
-
-        [RelayCommand]
-        public async Task ShowOrderDetails(Order order)
-        {
-            if (order == null)
-            {
-                StatusMessage = "Geen order geselecteerd.";
-                return;
-            }
-
-            try
-            {
-                var navigationParameter = new Dictionary<string, object>
-                {
-                    { "Order", order }
-                };
-                await Shell.Current.GoToAsync(nameof(OrderDetailsPage), navigationParameter);
-            }
-            catch (Exception ex)
-            {
-                StatusMessage = $"Fout bij tonen details: {ex.Message}";
-            }
         }
     }
 }
