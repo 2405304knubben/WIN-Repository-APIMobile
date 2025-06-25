@@ -18,12 +18,27 @@
     </ContentPage.Resources>
 
 
-    <Grid RowDefinitions="Auto,Auto,*" Padding="16,8">
-        <!-- Checkbox voor vandaag -->
-        <HorizontalStackLayout Grid.Row="1" Margin="0,0,0,8">
-            <CheckBox IsChecked="{Binding OnlyToday}" Color="#9747FF"/>
-            <Label Text="Alleen bestellingen van vandaag" TextColor="White" VerticalOptions="Center"/>
-        </HorizontalStackLayout>
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="16,8">
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*" Margin="0,0,0,8">
+            <!-- Linkerkant: Checkbox + label -->
+            <HorizontalStackLayout Spacing="8" VerticalOptions="Center" Grid.Column="0">
+                <CheckBox IsChecked="{Binding OnlyToday}" Color="#9747FF"/>
+                <Label Text="Alleen bestellingen van vandaag" TextColor="White" VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+            <!-- Rechterkant: Zoekbalk -->
+            <SearchBar
+        Grid.Column="1"
+        Placeholder="Zoek op klant of ordernummer"
+        Text="{Binding SearchText, Mode=TwoWay}"
+        TextColor="White"
+        PlaceholderColor="Gray"
+        BackgroundColor="#2D2D2D"
+        HorizontalOptions="End"
+        WidthRequest="300"
+        Margin="0,0,0,0"/>
+        </Grid>
+
+
 
         <!-- Filterknoppen -->
         <Grid Grid.Row="0" ColumnSpacing="0" Margin="0,0,0,15" HeightRequest="60">
@@ -76,7 +91,7 @@
 
 
         <!-- Orders List -->
-        <CollectionView Grid.Row="2"
+        <CollectionView Grid.Row="3"
                         ItemsSource="{Binding Orders}">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Order">

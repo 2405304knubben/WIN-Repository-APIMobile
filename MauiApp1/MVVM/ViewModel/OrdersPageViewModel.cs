@@ -28,6 +28,12 @@ namespace MauiApp1.MVVM.ViewModel
         [ObservableProperty]
         private OrdersFilter currentFilter = OrdersFilter.All;
 
+        [ObservableProperty]
+        private string? searchText;
+
+        [ObservableProperty]
+        private bool onlyToday;
+
         public double AllOrdersButtonOpacity => CurrentFilter == OrdersFilter.All ? 1.0 : 0.5;
         public double PendingButtonOpacity => CurrentFilter == OrdersFilter.Pending ? 1.0 : 0.5;
         public double InTransitButtonOpacity => CurrentFilter == OrdersFilter.InTransit ? 1.0 : 0.5;
@@ -162,6 +168,16 @@ namespace MauiApp1.MVVM.ViewModel
                 StatusMessage += " (vandaag)";
             }
 
+            // Filter op zoektekst
+            if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                var lower = SearchText.ToLower();
+                filtered = filtered.Where(o =>
+                    o.Id.ToString() == lower ||
+                    (o.Customer?.Name?.ToLower().Contains(lower) ?? false)
+                );
+            }
+
             foreach (var order in filtered
                 .OrderBy(o => GetLastState(o) == DeliveryStateEnum.Delivered)
                 .ThenByDescending(o => o.OrderDate))
@@ -169,16 +185,16 @@ namespace MauiApp1.MVVM.ViewModel
                 Orders.Add(order);
             }
         }
-        [ObservableProperty]
-        private bool onlyToday;
-
 
         partial void OnOnlyTodayChanged(bool value)
         {
             ApplyFilter();
         }
 
-
+        partial void OnSearchTextChanged(string? value)
+        {
+            ApplyFilter();
+        }
 
         private DeliveryStateEnum? GetLastState(Order order)
         {
