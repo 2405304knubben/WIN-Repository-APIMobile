@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.Input;
 using MauiApp1.ApiService;
 using MauiApp1.ModelAPI;
-using MauiApp1.MVVM.Views;
 using System.Collections.ObjectModel;
 
 namespace MauiApp1.MVVM.ViewModel
@@ -34,6 +33,9 @@ namespace MauiApp1.MVVM.ViewModel
         [ObservableProperty]
         private bool onlyToday;
 
+        [ObservableProperty]
+        private bool isLoading;
+
         public double AllOrdersButtonOpacity => CurrentFilter == OrdersFilter.All ? 1.0 : 0.5;
         public double PendingButtonOpacity => CurrentFilter == OrdersFilter.Pending ? 1.0 : 0.5;
         public double InTransitButtonOpacity => CurrentFilter == OrdersFilter.InTransit ? 1.0 : 0.5;
@@ -59,7 +61,9 @@ namespace MauiApp1.MVVM.ViewModel
         {
             try
             {
+                IsLoading = true;
                 StatusMessage = "Ophalen van orders...";
+
                 var ordersTask = _apiService.GetOrdersAsync();
                 var statesTask = _apiService.GetAllDeliveryStatesAsync();
 
@@ -92,42 +96,29 @@ namespace MauiApp1.MVVM.ViewModel
             {
                 StatusMessage = $"Fout bij ophalen orders: {ex.Message}";
             }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         [RelayCommand]
-        private void ShowAllOrders()
-        {
-            CurrentFilter = OrdersFilter.All;
-            ApplyFilter();
-        }
+        private void ShowAllOrders() { CurrentFilter = OrdersFilter.All; ApplyFilter(); }
 
         [RelayCommand]
-        private void ShowPendingOrders()
-        {
-            CurrentFilter = OrdersFilter.Pending;
-            ApplyFilter();
-        }
+        private void ShowPendingOrders() { CurrentFilter = OrdersFilter.Pending; ApplyFilter(); }
 
         [RelayCommand]
-        private void ShowInTransitOrders()
-        {
-            CurrentFilter = OrdersFilter.InTransit;
-            ApplyFilter();
-        }
+        private void ShowInTransitOrders() { CurrentFilter = OrdersFilter.InTransit; ApplyFilter(); }
 
         [RelayCommand]
-        private void ShowDeliveredOrders()
-        {
-            CurrentFilter = OrdersFilter.Delivered;
-            ApplyFilter();
-        }
+        private void ShowDeliveredOrders() { CurrentFilter = OrdersFilter.Delivered; ApplyFilter(); }
 
         private void ApplyFilter()
         {
             Orders.Clear();
             IEnumerable<Order> filtered = _allOrders;
 
-            // Filter op status
             switch (CurrentFilter)
             {
                 case OrdersFilter.Pending:
@@ -160,7 +151,6 @@ namespace MauiApp1.MVVM.ViewModel
                     break;
             }
 
-            // Filter op vandaag als de checkbox aan staat
             if (OnlyToday)
             {
                 var today = DateTime.Today;
@@ -168,7 +158,6 @@ namespace MauiApp1.MVVM.ViewModel
                 StatusMessage += " (vandaag)";
             }
 
-            // Filter op zoektekst
             if (!string.IsNullOrWhiteSpace(SearchText))
             {
                 var lower = SearchText.ToLower();
@@ -186,27 +175,19 @@ namespace MauiApp1.MVVM.ViewModel
             }
         }
 
-        partial void OnOnlyTodayChanged(bool value)
-        {
-            ApplyFilter();
-        }
-
-        partial void OnSearchTextChanged(string? value)
-        {
-            ApplyFilter();
-        }
-
-        private DeliveryStateEnum? GetLastState(Order order)
-        {
-            return order.DeliveryStates?.OrderByDescending(s => s.DateTime).FirstOrDefault()?.State;
-        }
-
+        partial void OnOnlyTodayChanged(bool value) => ApplyFilter();
+        partial void OnSearchTextChanged(string? value) => ApplyFilter();
         partial void OnCurrentFilterChanged(OrdersFilter value)
         {
             OnPropertyChanged(nameof(AllOrdersButtonOpacity));
             OnPropertyChanged(nameof(PendingButtonOpacity));
             OnPropertyChanged(nameof(InTransitButtonOpacity));
             OnPropertyChanged(nameof(DeliveredButtonOpacity));
+        }
+
+        private DeliveryStateEnum? GetLastState(Order order)
+        {
+            return order.DeliveryStates?.OrderByDescending(s => s.DateTime).FirstOrDefault()?.State;
         }
 
         [RelayCommand]

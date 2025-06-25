@@ -17,29 +17,7 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-
-    <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="16,8">
-        <Grid Grid.Row="1" ColumnDefinitions="Auto,*" Margin="0,0,0,8">
-            <!-- Linkerkant: Checkbox + label -->
-            <HorizontalStackLayout Spacing="8" VerticalOptions="Center" Grid.Column="0">
-                <CheckBox IsChecked="{Binding OnlyToday}" Color="#9747FF"/>
-                <Label Text="Alleen bestellingen van vandaag" TextColor="White" VerticalOptions="Center"/>
-            </HorizontalStackLayout>
-            <!-- Rechterkant: Zoekbalk -->
-            <SearchBar
-        Grid.Column="1"
-        Placeholder="Zoek op klant of ordernummer"
-        Text="{Binding SearchText, Mode=TwoWay}"
-        TextColor="White"
-        PlaceholderColor="Gray"
-        BackgroundColor="#2D2D2D"
-        HorizontalOptions="End"
-        WidthRequest="300"
-        Margin="0,0,0,0"/>
-        </Grid>
-
-
-
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" Padding="16,8">
         <!-- Filterknoppen -->
         <Grid Grid.Row="0" ColumnSpacing="0" Margin="0,0,0,15" HeightRequest="60">
             <Grid.ColumnDefinitions>
@@ -89,9 +67,42 @@
                 Opacity="{Binding DeliveredButtonOpacity}"/>
         </Grid>
 
+        <!-- Checkbox + zoekbalk -->
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*" Margin="0,0,0,8">
+            <HorizontalStackLayout Spacing="8" VerticalOptions="Center" Grid.Column="0">
+                <CheckBox IsChecked="{Binding OnlyToday}" Color="#9747FF"/>
+                <Label Text="Alleen bestellingen van vandaag" TextColor="White" VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+            <SearchBar
+                Grid.Column="1"
+                Placeholder="Zoek op klant of ordernummer"
+                Text="{Binding SearchText, Mode=TwoWay}"
+                TextColor="White"
+                PlaceholderColor="Gray"
+                BackgroundColor="#2D2D2D"
+                HorizontalOptions="End"
+                WidthRequest="300"
+                Margin="0,0,0,0"/>
+        </Grid>
+
+       
+        <StackLayout Grid.Row="2" Margin="0,0,0,8" Spacing="4">
+            <Label Text="{Binding StatusMessage}"
+           TextColor="White"
+           FontAttributes="Italic"
+           FontSize="14"/>
+            <ActivityIndicator 
+        IsVisible="{Binding IsLoading}" 
+        IsRunning="{Binding IsLoading}" 
+        Color="#9747FF"
+        HeightRequest="32"
+        WidthRequest="32"
+        HorizontalOptions="Center"/>
+        </StackLayout>
+
 
         <!-- Orders List -->
-        <CollectionView Grid.Row="3"
+        <CollectionView Grid.Row="4"
                         ItemsSource="{Binding Orders}">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Order">
@@ -107,7 +118,6 @@
                             </SwipeItems>
                         </SwipeView.RightItems>
 
-                        <!-- Buitenste Grid met één rij -->
                         <Grid RowDefinitions="Auto">
                             <Border StrokeShape="RoundRectangle 8"
                                     Background="#2D2D2D"
@@ -119,12 +129,10 @@
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:OrdersPageViewModel}}, Path=GoToDeliveryTrackingCommand}"
                                         CommandParameter="{Binding .}" />
                                 </Border.GestureRecognizers>
-                                <!-- Binnenste Grid met 2 kolommen (info + knop) -->
                                 <Grid ColumnDefinitions="*,Auto"
                                         RowDefinitions="Auto,Auto,Auto,Auto"
                                         Padding="16,0,0,0">
 
-                                    <!-- Order info links -->
                                     <Label Grid.Row="0" Grid.Column="0"
                                             Text="{Binding Id, StringFormat='Order #{0}'}"
                                             TextColor="White"
@@ -145,8 +153,6 @@
                                             FontSize="12"
                                             Margin="0,8,0,0"/>
 
-                                    <!-- Rechterknop strak tegen rand en over hele hoogte -->
-
                                     <ImageButton Grid.Row="0" Grid.Column="1" Grid.RowSpan="4"
                                         Source="delivery.png"
                                         BackgroundColor="#007AFF"
@@ -159,18 +165,13 @@
                                         VerticalOptions="Fill"
                                         HorizontalOptions="End"
                                         HeightRequest="150"
-                                                 WidthRequest="80"
+                                        WidthRequest="80"
                                         Aspect="AspectFit"/>
-
-
-
                                 </Grid>
                             </Border>
                         </Grid>
                     </SwipeView>
-
                 </DataTemplate>
-
             </CollectionView.ItemTemplate>
         </CollectionView>
     </Grid>
