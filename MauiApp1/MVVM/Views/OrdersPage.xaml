@@ -68,22 +68,20 @@
         </Grid>
 
         <!-- Checkbox + zoekbalk -->
-        <Grid Grid.Row="1" ColumnDefinitions="Auto,*" Margin="0,0,0,8">
-            <HorizontalStackLayout Spacing="8" VerticalOptions="Center" Grid.Column="0">
+        <VerticalStackLayout Grid.Row="1" Spacing="8" Margin="0,0,0,8">
+            <SearchBar
+        Placeholder="Zoek op klant of ordernummer"
+        Text="{Binding SearchText, Mode=TwoWay}"
+        TextColor="White"
+        PlaceholderColor="Gray"
+        BackgroundColor="#2D2D2D"
+        HorizontalOptions="Fill"
+        WidthRequest="300"/>
+            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
                 <CheckBox IsChecked="{Binding OnlyToday}" Color="#9747FF"/>
                 <Label Text="Alleen bestellingen van vandaag" TextColor="White" VerticalOptions="Center"/>
             </HorizontalStackLayout>
-            <SearchBar
-                Grid.Column="1"
-                Placeholder="Zoek op klant of ordernummer"
-                Text="{Binding SearchText, Mode=TwoWay}"
-                TextColor="White"
-                PlaceholderColor="Gray"
-                BackgroundColor="#2D2D2D"
-                HorizontalOptions="End"
-                WidthRequest="300"
-                Margin="0,0,0,0"/>
-        </Grid>
+        </VerticalStackLayout>
 
         <!-- Status message en loader -->
         <StackLayout Grid.Row="2" Margin="0,0,0,8" Spacing="4">
