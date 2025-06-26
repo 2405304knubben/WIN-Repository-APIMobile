@@ -24,7 +24,8 @@ namespace MauiApp1.ApiService
 
             _client = new HttpClient
             {
-                BaseAddress = new Uri(baseUrl.TrimEnd('/'))
+                BaseAddress = new Uri(baseUrl.TrimEnd('/')),
+                Timeout = TimeSpan.FromSeconds(100000) // Timeout na 1000 seconden
             };
             
             _client.DefaultRequestHeaders.Accept.Clear();
@@ -42,28 +43,43 @@ namespace MauiApp1.ApiService
 
         public async Task<List<Order>> GetOrdersAsync()
         {
-            try
-            {
-                var requestUrl = "api/Order";
-                var response = await _client.GetAsync(requestUrl);
-                var content = await response.Content.ReadAsStringAsync();
-                
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new HttpRequestException($"Error {(int)response.StatusCode}: {content}");
-                }
+            var orders = new List<Order>();
+            // Define your range here
+            int startId = 1200;
+            int endId = 1300;
 
-                var result = JsonSerializer.Deserialize<List<Order>>(content, _jsonOptions);
-                return result ?? new List<Order>();
-            }
-            catch (JsonException ex)
+            for (int i = startId; i <= endId; i++)
             {
-                throw new Exception($"Error deserializing orders response: {ex.Message}", ex);
+                try
+                {
+                    var requestUrl = $"api/Order/{i}";
+                    var response = await _client.GetAsync(requestUrl);
+                    var content = await response.Content.ReadAsStringAsync();
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        // Optionally skip not found or log
+                        Debug.WriteLine($"Order {i} not found or error: {response.StatusCode}");
+                        continue;
+                    }
+
+                    var order = JsonSerializer.Deserialize<Order>(content, _jsonOptions);
+                    if (order != null)
+                    {
+                        orders.Add(order);
+                    }
+                }
+                catch (JsonException ex)
+                {
+                    Debug.WriteLine($"Error deserializing order {i}: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error getting order {i}: {ex.Message}");
+                }
             }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error getting orders: {ex.Message}", ex);
-            }
+
+            return orders;
         }
 
         public async Task<List<DeliveryState>> GetAllDeliveryStatesAsync()
@@ -188,6 +204,40 @@ namespace MauiApp1.ApiService
                 Debug.WriteLine($"Error in FinishDeliveryAsync: {ex}");
                 throw;
             }
+        }
+        public async Task<List<DeliveryState>> GetDeliveryStatesByOrderRangeAsync(int startId, int endId)
+        {
+            var allStates = new List<DeliveryState>();
+            for (int i = startId; i <= endId; i++)
+            {
+                try
+                {
+                    var requestUrl = $"api/DeliveryStates/GetByOrderId/{i}";
+                    var response = await _client.GetAsync(requestUrl);
+                    var content = await response.Content.ReadAsStringAsync();
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Debug.WriteLine($"Delivery states for order {i} not found or error: {response.StatusCode}");
+                        continue;
+                    }
+
+                    var states = JsonSerializer.Deserialize<List<DeliveryState>>(content, _jsonOptions);
+                    if (states != null)
+                    {
+                        allStates.AddRange(states);
+                    }
+                }
+                catch (JsonException ex)
+                {
+                    Debug.WriteLine($"Error deserializing delivery states for order {i}: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error getting delivery states for order {i}: {ex.Message}");
+                }
+            }
+            return allStates;
         }
 
     }
