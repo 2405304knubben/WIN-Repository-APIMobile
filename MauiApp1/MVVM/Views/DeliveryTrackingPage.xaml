@@ -32,7 +32,7 @@
                 <VerticalStackLayout Spacing="8">
                     <Label Text="{Binding Order.Id, StringFormat='Order #{0}'}"
                            FontSize="24"
-                           TextColor="White"/>
+                           TextColor="{StaticResource Primary}"/>
                     <Label Text="{Binding Order.Customer.Name}"
                            TextColor="White"/>
                     <Label Text="{Binding Order.Customer.Address}"
@@ -45,13 +45,13 @@
             <!-- Status Message -->
             <Label Text="{Binding StatusMessage}"
                    FontSize="18"
-                   TextColor="#9747FF"
+                   TextColor="{StaticResource PrimaryDark}"
                    HorizontalOptions="Center"/>
 
             <!-- Route Label -->
             <Label Text="Routebeschrijving"
                    FontSize="20"
-                   TextColor="White"
+                   TextColor="{StaticResource Primary}"
                    Margin="0,8,0,4"/>
 
             <!-- Mapbox Static Map -->
@@ -86,7 +86,7 @@
             <!-- Status History -->
             <Label Text="Bezorggeschiedenis"
                    FontSize="20"
-                   TextColor="White"/>
+                   TextColor="{StaticResource Primary}"/>
 
             <CollectionView ItemsSource="{Binding Order.DeliveryStates}">
                 <CollectionView.ItemTemplate>
@@ -94,12 +94,12 @@
                         <Grid Padding="8">
                             <Border Stroke="#333333"
                                    StrokeThickness="1"
-                                   Background="#2D2D2D"
+                                   Background="{StaticResource Secondary}"
                                    Padding="12"
                                    StrokeShape="RoundRectangle 8">
                                 <VerticalStackLayout Spacing="4">
                                     <Label Text="{Binding State, Converter={StaticResource DeliveryStateConverter}}"
-                                           TextColor="White"
+                                           TextColor="{StaticResource Primary}"
                                            FontSize="16"/>
                                     <Label Text="{Binding DateTime, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
                                            TextColor="#666666"/>
@@ -113,7 +113,7 @@
             <!-- Action Buttons -->
             <Button Text="Start bezorging"
                     Command="{Binding StartDeliveryCommand}"
-                    BackgroundColor="#9747FF"
+                    BackgroundColor="{StaticResource PrimaryDark}"
                     TextColor="White"
                     FontSize="18"
                     Padding="24,12"
@@ -122,7 +122,7 @@
 
             <Button Text="Rond bezorging af"
                     Command="{Binding CompleteDeliveryCommand}"
-                    BackgroundColor="#9747FF"
+                    BackgroundColor="{StaticResource PrimaryDark}"
                     TextColor="White"
                     FontSize="18"
                     Padding="24,12"

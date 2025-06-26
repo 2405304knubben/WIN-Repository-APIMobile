@@ -7,7 +7,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="12">
             <Label Text="Order Details" FontSize="24" FontAttributes="Bold" />
-            <Label Text="{Binding Order.Id, StringFormat='Order #{0}'}" FontSize="18" FontAttributes="Bold" />
+            <Label Text="{Binding Order.Id, StringFormat='Order #{0}'}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
             <Label Text="{Binding Order.OrderDate, StringFormat='Datum: {0:dd/MM/yyyy HH:mm}'}" FontSize="16" />
             <Label Text="{Binding Order.Customer.Name, StringFormat='Klant: {0}'}" FontSize="16" />
             <Label Text="{Binding Order.Customer.Address, StringFormat='Adres: {0}'}" FontSize="14" />
