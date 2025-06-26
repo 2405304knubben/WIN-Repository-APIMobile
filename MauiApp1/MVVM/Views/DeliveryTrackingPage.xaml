@@ -7,8 +7,28 @@
     xmlns:viewmodel="clr-namespace:MauiApp1.MVVM.ViewModel"
     xmlns:converters="clr-namespace:MauiApp1.MVVM.Converters"
     x:DataType="viewmodel:DeliveryTrackingPageViewModel"
-    Title="Bezorging tracken"
-    BackgroundColor="#1C1C1C">
+    BackgroundColor="{StaticResource OffBlack}">
+
+    <!-- Custom TitleView met logo rechts -->
+    <Shell.TitleView>
+        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center" Padding="0,0,8,0">
+            <Label Text="Bezorging tracken"
+                   Padding="15,0,0,0"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource Primary}"
+                   VerticalOptions="Center"
+                   HorizontalOptions="Start"
+                   Margin="0,0,8,0"
+                   Grid.Column="0"/>
+            <Image Source="matrix.png"
+                   HeightRequest="40"
+                   WidthRequest="60"
+                   VerticalOptions="Center"
+                   HorizontalOptions="End"
+                   Grid.Column="1"/>
+        </Grid>
+    </Shell.TitleView>
 
     <Shell.BackButtonBehavior>
         <BackButtonBehavior Command="{Binding GoBackCommand}" />
