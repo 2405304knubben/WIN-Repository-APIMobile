@@ -14,6 +14,8 @@ namespace MauiApp1.MVVM.ViewModel
         private readonly ApiService.ApiService _apiService;
         private readonly MapboxService _mapboxService;
         private readonly string _mapboxApiKey;
+        private readonly MapService _mapService;
+        private bool _useGoogleMaps;
 
         [ObservableProperty]
         private Order? order;
@@ -31,11 +33,12 @@ namespace MauiApp1.MVVM.ViewModel
         public bool ShowStartButton => LastDeliveryState?.State == DeliveryStateEnum.Pending || LastDeliveryState == null;
         public bool ShowCompleteButton => LastDeliveryState?.State == DeliveryStateEnum.InTransit;
 
-        public DeliveryTrackingPageViewModel(ApiService.ApiService apiService, Services.MapboxService mapboxService, string mapboxApiKey)
+        public DeliveryTrackingPageViewModel(ApiService.ApiService apiService, Services.MapboxService mapboxService, string mapboxApiKey, MapService mapService)
         {
             _apiService = apiService;
             _mapboxService = mapboxService;
             _mapboxApiKey = mapboxApiKey;
+            _mapService = mapService;
         }
 
         [RelayCommand]
@@ -78,6 +81,22 @@ namespace MauiApp1.MVVM.ViewModel
             catch (Exception ex)
             {
                 StatusMessage = $"Fout bij afronden bezorging: {ex.Message}";
+            }
+        }
+
+        [RelayCommand]
+        private async Task OpenMap()
+        {
+            if (Order?.Customer?.Address == null) return;
+
+            try
+            {
+                await _mapService.OpenInMapAsync(Order.Customer.Address, _useGoogleMaps);
+                _useGoogleMaps = !_useGoogleMaps; // Toggle for next click
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Er is een fout opgetreden bij het openen van de kaart: {ex.Message}";
             }
         }
 

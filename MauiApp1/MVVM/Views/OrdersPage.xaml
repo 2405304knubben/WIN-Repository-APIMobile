@@ -17,7 +17,7 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" Padding="16,8">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,*" Padding="16,8">
         <!-- Filterknoppen -->
         <Grid Grid.Row="0" ColumnSpacing="0" Margin="0,0,0,15" HeightRequest="60">
             <Grid.ColumnDefinitions>
@@ -67,26 +67,27 @@
                 Opacity="{Binding DeliveredButtonOpacity}"/>
         </Grid>
 
-        <!-- Checkbox + zoekbalk -->
-        <Grid Grid.Row="1" ColumnDefinitions="Auto,*" Margin="0,0,0,8">
-            <HorizontalStackLayout Spacing="8" VerticalOptions="Center" Grid.Column="0">
-                <CheckBox IsChecked="{Binding OnlyToday}" Color="#9747FF"/>
-                <Label Text="Alleen bestellingen van vandaag" TextColor="White" VerticalOptions="Center"/>
-            </HorizontalStackLayout>
+        <!-- Zoekbalk -->
+        <Grid Grid.Row="1" Margin="0,0,0,8">
             <SearchBar
-                Grid.Column="1"
                 Placeholder="Zoek op klant of ordernummer"
                 Text="{Binding SearchText, Mode=TwoWay}"
                 TextColor="White"
                 PlaceholderColor="Gray"
                 BackgroundColor="#2D2D2D"
-                HorizontalOptions="End"
-                WidthRequest="300"
-                Margin="0,0,0,0"/>
+                HorizontalOptions="Fill"
+                Margin="0,0,0,8"/>
         </Grid>
 
+        <!-- Checkbox voor vandaag -->
+        <HorizontalStackLayout Grid.Row="2" Spacing="8" Margin="0,0,0,8">
+            <CheckBox IsChecked="{Binding OnlyToday}" Color="#9747FF"/>
+            <Label Text="Alleen bestellingen van vandaag" 
+                   TextColor="White" 
+                   VerticalOptions="Center"/>
+        </HorizontalStackLayout>
         <!-- Status message en loader -->
-        <StackLayout Grid.Row="2" Margin="0,0,0,8" Spacing="4">
+        <StackLayout Grid.Row="3" Margin="0,0,0,8" Spacing="4">
             <Label Text="{Binding StatusMessage}"
                    TextColor="White"
                    FontAttributes="Italic"
@@ -101,7 +102,7 @@
         </StackLayout>
 
         <!-- Orders List -->
-        <CollectionView Grid.Row="4"
+        <CollectionView Grid.Row="5"
                         ItemsSource="{Binding Orders}">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Order">

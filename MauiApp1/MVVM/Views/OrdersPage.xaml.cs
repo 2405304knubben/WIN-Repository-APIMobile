@@ -15,6 +15,12 @@ namespace MauiApp1.MVVM.Views
             BindingContext = _viewModel;
         }
 
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            await _viewModel.RefreshOrdersAsync();
+        }
+
         // Tap animatie (schalen)
         private async void OnTapped(object sender, EventArgs e)
         {

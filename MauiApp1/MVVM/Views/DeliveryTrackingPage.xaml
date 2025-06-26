@@ -44,6 +44,12 @@
                    TextColor="#9747FF"
                    HorizontalOptions="Center"/>
 
+            <!-- Route Label -->
+            <Label Text="Routebeschrijving"
+                   FontSize="20"
+                   TextColor="White"
+                   Margin="0,8,0,4"/>
+
             <!-- Mapbox Static Map -->
             <Border Stroke="#333333"
                     StrokeThickness="1"
@@ -56,7 +62,11 @@
                         Aspect="AspectFill"
                         Source="{Binding MapImageUrl}" 
                         IsVisible="{Binding MapImageUrl, Converter={StaticResource StringNotNullOrEmptyConverter}}"
-                        BackgroundColor="#2D2D2D" />
+                        BackgroundColor="#2D2D2D">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenMapCommand}" />
+                        </Image.GestureRecognizers>
+                    </Image>
                     <Label
                         Text="{Binding MapStatusMessage}"
                         TextColor="White"

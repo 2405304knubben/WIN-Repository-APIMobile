@@ -45,7 +45,11 @@ namespace MauiApp1.MVVM.ViewModel
         {
             _apiService = apiService;
             LoadOrdersCommand.Execute(null);
-            Shell.Current.Navigating += Current_Navigating;
+        }
+
+        public async Task RefreshOrdersAsync()
+        {
+            await LoadOrdersCommand.ExecuteAsync(null);
         }
 
         private void Current_Navigating(object? sender, ShellNavigatingEventArgs e)

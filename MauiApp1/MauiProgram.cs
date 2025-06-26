@@ -14,9 +14,16 @@ namespace MauiApp1
         {
             var builder = MauiApp.CreateBuilder();
 
-            // Load appsettings.json  
-            // Add configuration from appsettings.json
-            builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            // Load configuration from embedded resource
+            using var stream = Assembly.GetExecutingAssembly()
+                .GetManifestResourceStream("MauiApp1.appsettings.json");
+
+            if (stream == null)
+            {
+                throw new Exception("Failed to load appsettings.json. Ensure it is marked as an EmbeddedResource.");
+            }
+
+            builder.Configuration.AddJsonStream(stream);
 
             var apiSettings = builder.Configuration.GetSection("ApiSettings");
             var baseUrl = apiSettings["BaseUrl"];
@@ -27,12 +34,30 @@ namespace MauiApp1
 
             if (string.IsNullOrWhiteSpace(mapboxApiKey))
             {
-                throw new System.Exception("Mapbox API key is not configured in appsettings.json");
+                throw new Exception("Mapbox API key is not configured in appsettings.json");
             }
 
-            // Register services
-            builder.Services.AddSingleton(new MauiApp1.ApiService.ApiService(apiKey ?? string.Empty, baseUrl ?? string.Empty));
-            builder.Services.AddSingleton(new Services.MapboxService(mapboxApiKey));
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                throw new Exception("API BaseUrl is not configured in appsettings.json");
+            }
+
+            if (string.IsNullOrWhiteSpace(apiKey))
+            {
+                throw new Exception("API Key is not configured in appsettings.json");
+            }
+
+#if DEBUG
+            Console.WriteLine($"Loaded configuration - BaseUrl: {baseUrl}");
+#endif
+
+            // Register services in correct order
+            builder.Services.AddSingleton(new ApiService.ApiService(apiKey, baseUrl));
+            
+            // Register MapboxService first, then MapService that depends on it
+            var mapboxService = new Services.MapboxService(mapboxApiKey);
+            builder.Services.AddSingleton(mapboxService);
+            builder.Services.AddSingleton(new MapService(mapboxService));
 
             // Register views and viewmodels
             builder.Services.AddTransient<MVVM.Views.OrdersPage>();
@@ -41,7 +66,8 @@ namespace MauiApp1
             builder.Services.AddTransient(provider => new DeliveryTrackingPageViewModel(
                 provider.GetRequiredService<ApiService.ApiService>(),
                 provider.GetRequiredService<Services.MapboxService>(),
-                mapboxApiKey
+                mapboxApiKey,
+                provider.GetRequiredService<MapService>()
             ));
 
             builder.Services.AddSingleton<AddOrderViewModel>();

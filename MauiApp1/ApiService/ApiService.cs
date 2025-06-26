@@ -14,6 +14,7 @@ namespace MauiApp1.ApiService
     {
         private readonly HttpClient _client;
         private readonly JsonSerializerOptions _jsonOptions;
+        private const int DefaultTimeoutSeconds = 30;
 
         public ApiService(string apiKey, string baseUrl)
         {
@@ -22,23 +23,47 @@ namespace MauiApp1.ApiService
             if (string.IsNullOrEmpty(baseUrl))
                 throw new ArgumentException("Base URL cannot be empty", nameof(baseUrl));
 
-            _client = new HttpClient
+            try
             {
-                BaseAddress = new Uri(baseUrl.TrimEnd('/')),
-                Timeout = TimeSpan.FromSeconds(100000) // Timeout na 1000 seconden
-            };
-            
-            _client.DefaultRequestHeaders.Accept.Clear();
-            _client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-            _client.DefaultRequestHeaders.Add("ApiKey", apiKey);
+                var handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => 
+                    {
+                        #if DEBUG
+                        return true; // In debug mode, accept all certificates
+                        #else
+                        return errors == System.Net.Security.SslPolicyErrors.None;
+                        #endif
+                    }
+                };
 
-            _jsonOptions = new JsonSerializerOptions
+                _client = new HttpClient(handler)
+                {
+                    BaseAddress = new Uri(baseUrl.TrimEnd('/')),
+                    Timeout = TimeSpan.FromSeconds(DefaultTimeoutSeconds)
+                };
+                
+                _client.DefaultRequestHeaders.Accept.Clear();
+                _client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                _client.DefaultRequestHeaders.Add("ApiKey", apiKey);
+
+                _jsonOptions = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+                    ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles,
+                    WriteIndented = true
+                };
+
+                #if DEBUG
+                Console.WriteLine($"ApiService initialized with baseUrl: {baseUrl}");
+                #endif
+            }
+            catch (Exception ex)
             {
-                PropertyNameCaseInsensitive = true,
-                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
-                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles,
-                WriteIndented = true
-            };
+                Debug.WriteLine($"Error initializing ApiService: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<List<Order>> GetOrdersAsync()
@@ -175,7 +200,12 @@ namespace MauiApp1.ApiService
                 {
                     throw new HttpRequestException($"Error {(int)response.StatusCode}: {content}");
                 }
-                return JsonSerializer.Deserialize<Order>(content, options);
+                var result = JsonSerializer.Deserialize<Order>(content, options);
+                if (result == null)
+                {
+                    throw new JsonException("Failed to deserialize order from API response");
+                }
+                return result;
             }
             catch (Exception ex)
             {
