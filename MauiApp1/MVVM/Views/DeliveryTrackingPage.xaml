@@ -10,6 +10,10 @@
     Title="Bezorging tracken"
     BackgroundColor="#1C1C1C">
 
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding GoBackCommand}" />
+    </Shell.BackButtonBehavior>
+
     <ContentPage.Resources>
         <ResourceDictionary>
             <converters:DeliveryStateConverter x:Key="DeliveryStateConverter"/>

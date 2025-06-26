@@ -65,8 +65,14 @@ namespace MauiApp1.MVVM.ViewModel
         {
             try
             {
+                // Clear existing orders first
+                Orders.Clear();
+                _allOrders.Clear();
                 IsLoading = true;
                 StatusMessage = "Ophalen van orders...";
+
+                // Add a small delay to show the loading state
+                await Task.Delay(300);
 
                 var ordersTask = _apiService.GetOrdersAsync();
                 var statesTask = _apiService.GetAllDeliveryStatesAsync();
@@ -79,7 +85,6 @@ namespace MauiApp1.MVVM.ViewModel
                 var statesByOrderId = allStates.GroupBy(s => s.OrderId)
                                                .ToDictionary(g => g.Key, g => g.ToList());
 
-                _allOrders.Clear();
                 if (orders != null)
                 {
                     foreach (var order in orders)
@@ -90,6 +95,9 @@ namespace MauiApp1.MVVM.ViewModel
                             order.DeliveryStates = new List<DeliveryState>();
                         _allOrders.Add(order);
                     }
+                    
+                    // Apply filter after a small delay to show loading animation
+                    await Task.Delay(200);
                     ApplyFilter();
                 }
 

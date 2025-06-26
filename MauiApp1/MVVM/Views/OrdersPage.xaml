@@ -14,12 +14,25 @@
             <converters:LastDeliveryStateConverter x:Key="LastDeliveryStateConverter"/>
             <converters:CanStartDeliveryConverter x:Key="CanStartDeliveryConverter"/>
             <converters:CanInteractWithOrderConverter x:Key="CanInteractWithOrderConverter"/>
+            <converters:BooleanInvertConverter x:Key="BooleanInvertConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,*" Padding="16,8">
+        <!-- Status Message and Loading Indicator -->
+        <StackLayout Grid.Row="0" IsVisible="{Binding IsLoading}">
+            <ActivityIndicator IsRunning="{Binding IsLoading}" 
+                             Color="{StaticResource Primary}"
+                             HeightRequest="50"
+                             HorizontalOptions="Center"/>
+            <Label Text="{Binding StatusMessage}"
+                   TextColor="{StaticResource Primary}"
+                   HorizontalOptions="Center"
+                   Margin="0,8,0,16"/>
+        </StackLayout>
+
         <!-- Filterknoppen -->
-        <Grid Grid.Row="0" ColumnSpacing="0" Margin="0,0,0,15" HeightRequest="60">
+        <Grid Grid.Row="1" ColumnSpacing="0" Margin="0,0,0,15" HeightRequest="60">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="1" />
@@ -37,6 +50,7 @@
                 TextColor="{StaticResource Primary}"
                 Padding="0"
                 CornerRadius="0"
+                IsEnabled="{Binding IsLoading, Converter={StaticResource BooleanInvertConverter}}"
                 Opacity="{Binding AllOrdersButtonOpacity}"/>
             <BoxView Grid.Column="1" WidthRequest="1" BackgroundColor="{StaticResource Primary}" Opacity="0.2" VerticalOptions="Fill"/>
             <Button Grid.Column="2"
@@ -46,6 +60,7 @@
                 TextColor="{StaticResource Primary}"
                 Padding="0"
                 CornerRadius="0"
+                IsEnabled="{Binding IsLoading, Converter={StaticResource BooleanInvertConverter}}"
                 Opacity="{Binding PendingButtonOpacity}"/>
             <BoxView Grid.Column="3" WidthRequest="1" BackgroundColor="{StaticResource Primary}" Opacity="0.2" VerticalOptions="Fill"/>
             <Button Grid.Column="4"
@@ -55,6 +70,7 @@
                 TextColor="{StaticResource Primary}"
                 Padding="0"
                 CornerRadius="0"
+                IsEnabled="{Binding IsLoading, Converter={StaticResource BooleanInvertConverter}}"
                 Opacity="{Binding InTransitButtonOpacity}"/>
             <BoxView Grid.Column="5" WidthRequest="1" BackgroundColor="{StaticResource Primary}" Opacity="0.2" VerticalOptions="Fill"/>
             <Button Grid.Column="6"
@@ -64,11 +80,12 @@
                 TextColor="{StaticResource Primary}"
                 Padding="0"
                 CornerRadius="0"
+                IsEnabled="{Binding IsLoading, Converter={StaticResource BooleanInvertConverter}}"
                 Opacity="{Binding DeliveredButtonOpacity}"/>
         </Grid>
 
         <!-- Zoekbalk -->
-        <Grid Grid.Row="1" Margin="0,0,0,8">
+        <Grid Grid.Row="2" Margin="0,0,0,8">
             <SearchBar
                 Placeholder="Zoek op klant of ordernummer"
                 Text="{Binding SearchText, Mode=TwoWay}"
@@ -80,7 +97,7 @@
         </Grid>
 
         <!-- Checkbox voor vandaag -->
-        <HorizontalStackLayout Grid.Row="2" Spacing="8" Margin="0,0,0,8">
+        <HorizontalStackLayout Grid.Row="3" Spacing="8" Margin="0,0,0,8">
             <CheckBox IsChecked="{Binding OnlyToday}" Color="{StaticResource Primary}"/>
             <Label Text="Alleen bestellingen van vandaag" 
                    TextColor="{StaticResource Primary}" 
@@ -88,7 +105,7 @@
         </HorizontalStackLayout>
 
         <!-- Status message en loader -->
-        <StackLayout Grid.Row="3" Margin="0,0,0,8" Spacing="4">
+        <StackLayout Grid.Row="4" Margin="0,0,0,8" Spacing="4">
             <Label Text="{Binding StatusMessage}"
                    TextColor="{StaticResource Primary}"
                    FontAttributes="Italic"

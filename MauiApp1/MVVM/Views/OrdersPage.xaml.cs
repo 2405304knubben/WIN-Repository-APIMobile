@@ -3,10 +3,25 @@ using MauiApp1.ApiService;
 
 namespace MauiApp1.MVVM.Views
 {
+    [QueryProperty(nameof(RefreshRequired), "RefreshRequired")]
     public partial class OrdersPage : ContentPage
     {
         private readonly OrdersPageViewModel _viewModel;
         private int _animatedCount = 0;
+        private bool _refreshRequired;
+
+        public bool RefreshRequired
+        {
+            get => _refreshRequired;
+            set
+            {
+                _refreshRequired = value;
+                if (value)
+                {
+                    ResetAndRefresh();
+                }
+            }
+        }
 
         public OrdersPage(OrdersPageViewModel viewModel)
         {
@@ -19,6 +34,13 @@ namespace MauiApp1.MVVM.Views
         {
             base.OnAppearing();
             await _viewModel.RefreshOrdersAsync();
+        }
+
+        private async void ResetAndRefresh()
+        {
+            _animatedCount = 0; // Reset animation counter
+            await _viewModel.RefreshOrdersAsync();
+            _refreshRequired = false;
         }
 
         // Tap animatie (schalen)

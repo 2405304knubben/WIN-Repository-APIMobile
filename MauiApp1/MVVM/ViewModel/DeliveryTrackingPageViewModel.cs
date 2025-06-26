@@ -3,19 +3,21 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MauiApp1.ApiService;
 using MauiApp1.ModelAPI;
-using MauiApp1.Services; // Add this using
+using MauiApp1.Services;
 using System.Threading.Tasks;
 
 namespace MauiApp1.MVVM.ViewModel
 {
     [QueryProperty(nameof(Order), "Order")]
-    public partial class DeliveryTrackingPageViewModel : ObservableObject
+    public partial class DeliveryTrackingPageViewModel : ObservableObject, IDisposable
     {
         private readonly ApiService.ApiService _apiService;
         private readonly MapboxService _mapboxService;
         private readonly string _mapboxApiKey;
         private readonly MapService _mapService;
         private bool _useGoogleMaps;
+        private IDispatcherTimer? _refreshTimer;
+        private bool _isDisposed;
 
         [ObservableProperty]
         private Order? order;
@@ -39,6 +41,57 @@ namespace MauiApp1.MVVM.ViewModel
             _mapboxService = mapboxService;
             _mapboxApiKey = mapboxApiKey;
             _mapService = mapService;
+
+            // Create and start the refresh timer
+            _refreshTimer = Application.Current!.Dispatcher.CreateTimer();
+            _refreshTimer.Interval = TimeSpan.FromSeconds(5);
+            _refreshTimer.Tick += RefreshTimer_Tick;
+            _refreshTimer.Start();
+        }
+
+        private async void RefreshTimer_Tick(object? sender, EventArgs e)
+        {
+            if (Order != null)
+            {
+                var updatedOrder = await _apiService.GetOrderByIdAsync(Order.Id);
+                if (updatedOrder != null && 
+                    (Order.DeliveryStates == null || 
+                     updatedOrder.DeliveryStates?.Count != Order.DeliveryStates?.Count ||
+                     updatedOrder.DeliveryStates?.LastOrDefault()?.State != Order.DeliveryStates?.LastOrDefault()?.State))
+                {
+                    Order = updatedOrder;
+                }
+            }
+        }
+
+        [RelayCommand]
+        private async Task GoBack()
+        {
+            _refreshTimer?.Stop();
+            var navigationParameter = new Dictionary<string, object>
+            {
+                { "RefreshRequired", true }
+            };
+            await Shell.Current.GoToAsync("..", navigationParameter);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_isDisposed)
+            {
+                if (disposing)
+                {
+                    _refreshTimer?.Stop();
+                    _refreshTimer = null;
+                }
+                _isDisposed = true;
+            }
         }
 
         [RelayCommand]
@@ -50,7 +103,7 @@ namespace MauiApp1.MVVM.ViewModel
             {
                 StatusMessage = "Bezorging wordt gestart...";
                 await _apiService.StartDeliveryAsync(Order.Id);
-                Order = await _apiService.GetOrderByIdAsync(Order.Id); // Refresh order data
+                Order = await _apiService.GetOrderByIdAsync(Order.Id);
                 UpdateStatus();
                 UpdateProperties();
             }
@@ -69,13 +122,17 @@ namespace MauiApp1.MVVM.ViewModel
             {
                 StatusMessage = "Bezorging wordt afgerond...";
                 await _apiService.CompleteDeliveryAsync(Order.Id);
-                Order = await _apiService.GetOrderByIdAsync(Order.Id); // Refresh order data
+                Order = await _apiService.GetOrderByIdAsync(Order.Id);
                 UpdateStatus();
                 UpdateProperties();
 
                 #if ANDROID || IOS
-                    await Task.Delay(500);
-                    Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(500));
+                    // Vibrate three times with high intensity
+                    for (int i = 0; i < 3; i++)
+                    {
+                        Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(1000));
+                        await Task.Delay(200);
+                    }
                 #endif
             }
             catch (Exception ex)
