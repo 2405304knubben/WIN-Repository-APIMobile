@@ -74,34 +74,56 @@
                    TextColor="{StaticResource Primary}"
                    Margin="0,8,0,4"/>
 
-            <!-- Mapbox Static Map -->
             <Border Stroke="#333333"
-                    StrokeThickness="1"
-                    Background="#2D2D2D"
-                    HeightRequest="300"
-                    Padding="0"
-                    StrokeShape="RoundRectangle 8">
+        StrokeThickness="1"
+        Background="#2D2D2D"
+        HeightRequest="300"
+        Padding="0"
+        StrokeShape="RoundRectangle 8">
                 <Grid>
                     <Image
-                        Aspect="AspectFill"
-                        Source="{Binding MapImageUrl}" 
-                        IsVisible="{Binding MapImageUrl, Converter={StaticResource StringNotNullOrEmptyConverter}}"
-                        BackgroundColor="#2D2D2D">
+            Aspect="AspectFill"
+            Source="{Binding MapImageUrl}" 
+            IsVisible="{Binding MapImageUrl, Converter={StaticResource StringNotNullOrEmptyConverter}}"
+            BackgroundColor="#2D2D2D">
                         <Image.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding OpenMapCommand}" />
                         </Image.GestureRecognizers>
                     </Image>
+                    <!-- Overlay label voor routebeschrijving met afgeronde hoeken en click -->
+                    <Border
+            BackgroundColor="#CC000000"
+            StrokeThickness="0"
+            StrokeShape="RoundRectangle 18"
+            Padding="0"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            IsVisible="{Binding ShowMapOverlay}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenMapCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label
+                Text="Druk hier op voor een routebeschrijving"
+                TextColor="White"
+                FontSize="18"
+                Padding="16,8"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                HorizontalTextAlignment="Center"
+                VerticalTextAlignment="Center" />
+                    </Border>
                     <Label
-                        Text="{Binding MapStatusMessage}"
-                        TextColor="White"
-                        FontSize="16"
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center"
-                        HorizontalTextAlignment="Center"
-                        Margin="16"
-                        IsVisible="{Binding MapStatusMessage, Converter={StaticResource StringNotNullOrEmptyConverter}}" />
+            Text="{Binding MapStatusMessage}"
+            TextColor="White"
+            FontSize="16"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            HorizontalTextAlignment="Center"
+            Margin="16"
+            IsVisible="{Binding MapStatusMessage, Converter={StaticResource StringNotNullOrEmptyConverter}}" />
                 </Grid>
             </Border>
+
 
             <!-- Status History -->
             <Label Text="Bezorggeschiedenis"

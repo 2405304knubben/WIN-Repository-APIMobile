@@ -35,6 +35,9 @@ namespace MauiApp1.MVVM.ViewModel
         public bool ShowStartButton => LastDeliveryState?.State == DeliveryStateEnum.Pending || LastDeliveryState == null;
         public bool ShowCompleteButton => LastDeliveryState?.State == DeliveryStateEnum.InTransit;
 
+        // Overlay alleen tonen als de order onderweg is
+        public bool ShowMapOverlay => LastDeliveryState?.State == DeliveryStateEnum.InTransit;
+
         public DeliveryTrackingPageViewModel(ApiService.ApiService apiService, Services.MapboxService mapboxService, string mapboxApiKey, MapService mapService)
         {
             _apiService = apiService;
@@ -54,8 +57,8 @@ namespace MauiApp1.MVVM.ViewModel
             if (Order != null)
             {
                 var updatedOrder = await _apiService.GetOrderByIdAsync(Order.Id);
-                if (updatedOrder != null && 
-                    (Order.DeliveryStates == null || 
+                if (updatedOrder != null &&
+                    (Order.DeliveryStates == null ||
                      updatedOrder.DeliveryStates?.Count != Order.DeliveryStates?.Count ||
                      updatedOrder.DeliveryStates?.LastOrDefault()?.State != Order.DeliveryStates?.LastOrDefault()?.State))
                 {
@@ -126,14 +129,14 @@ namespace MauiApp1.MVVM.ViewModel
                 UpdateStatus();
                 UpdateProperties();
 
-                #if ANDROID || IOS
+#if ANDROID || IOS
                     // Vibrate three times with high intensity
                     for (int i = 0; i < 3; i++)
                     {
                         Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(1000));
                         await Task.Delay(200);
                     }
-                #endif
+#endif
             }
             catch (Exception ex)
             {
@@ -162,6 +165,7 @@ namespace MauiApp1.MVVM.ViewModel
             OnPropertyChanged(nameof(LastDeliveryState));
             OnPropertyChanged(nameof(ShowStartButton));
             OnPropertyChanged(nameof(ShowCompleteButton));
+            OnPropertyChanged(nameof(ShowMapOverlay)); // <-- belangrijk!
         }
 
         private string GetStatusMessage(DeliveryStateEnum? state)
@@ -201,7 +205,7 @@ namespace MauiApp1.MVVM.ViewModel
                             // Henderson, NV coordinates
                             MapImageUrl = string.Format(
                                 CultureInfo.InvariantCulture,
-                                "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s-l+000({0},{1})/{0},{1},14,0/600x300?access_token={2}",
+                                "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s-l+000({0},{1})/{0},{1},14,0/600x300?access_token={2}&t={3}",
                                 "-114.981758", // longitude
                                 "36.039581",   // latitude
                                 _mapboxApiKey,
@@ -214,7 +218,7 @@ namespace MauiApp1.MVVM.ViewModel
                             // Cheraw, SC coordinates
                             MapImageUrl = string.Format(
                                 CultureInfo.InvariantCulture,
-                                "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s-l+000({0},{1})/{0},{1},14,0/600x300?access_token={2}",
+                                "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s-l+000({0},{1})/{0},{1},14,0/600x300?access_token={2}&t={3}",
                                 "-79.910667",  // longitude
                                 "34.697552",   // latitude
                                 _mapboxApiKey,
@@ -248,7 +252,7 @@ namespace MauiApp1.MVVM.ViewModel
         {
             UpdateProperties();
             UpdateStatus();
-            LoadMap(); // Changed from LoadMapAsync
+            LoadMap();
         }
     }
 }
