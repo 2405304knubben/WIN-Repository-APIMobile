@@ -33,7 +33,7 @@ namespace MauiApp1.MVVM.Views
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await _viewModel.RefreshOrdersAsync();
+            
         }
 
         private async void ResetAndRefresh()
