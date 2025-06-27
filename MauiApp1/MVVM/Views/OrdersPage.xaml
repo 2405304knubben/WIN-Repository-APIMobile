@@ -23,8 +23,8 @@
                Margin="0,0,8,0"
                Grid.Column="0"/>
             <Image Source="matrix.png"
-               HeightRequest="40"
-               WidthRequest="60"
+               HeightRequest="45"
+               WidthRequest="100"
                VerticalOptions="Center"
                HorizontalOptions="End"
                Grid.Column="1"/>
