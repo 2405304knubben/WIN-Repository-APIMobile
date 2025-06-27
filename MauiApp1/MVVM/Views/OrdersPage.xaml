@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:MauiApp1.ModelAPI"
+             xmlns:viewmodel="clr-namespace:MauiApp1.MVVM.ViewModel"
+             xmlns:converters="clr-namespace:MauiApp1.MVVM.Converters"
+             x:Class="MauiApp1.MVVM.Views.OrdersPage"
+             x:DataType="viewmodel:OrdersPageViewModel"
+             BackgroundColor="{StaticResource OffBlack}">
+
+
+    <!-- Custom TitleView met logo rechts -->
+    <Shell.TitleView BackgroundColor="{StaticResource Gray900}">
+        <Grid  ColumnDefinitions="*,Auto" VerticalOptions="Center" Padding="0,0,8,0">
+            <!-- De sterretje-kolom duwt alles naar rechts -->
+            <Label Text="Bestellingen"
+                   Padding="15,0,0,0"
+               FontSize="20"
+               FontAttributes="Bold"
+               TextColor="{StaticResource Primary}"
+               VerticalOptions="Center"
+               HorizontalOptions="Start"
+               Margin="0,0,8,0"
+               Grid.Column="0"/>
+            <Image Source="matrix.png"
+               HeightRequest="45"
+               WidthRequest="100"
+               VerticalOptions="Center"
+               HorizontalOptions="End"
+               Grid.Column="1"/>
+        </Grid>
+    </Shell.TitleView>
+
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:LastDeliveryStateConverter x:Key="LastDeliveryStateConverter"/>
+            <converters:CanStartDeliveryConverter x:Key="CanStartDeliveryConverter"/>
+            <converters:CanInteractWithOrderConverter x:Key="CanInteractWithOrderConverter"/>
+            <converters:BooleanInvertConverter x:Key="BooleanInvertConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,*" Padding="16,8">
+        
+
+        <!-- Filterknoppen -->
+        <Grid Grid.Row="1" ColumnSpacing="0" Margin="0,0,0,15" HeightRequest="60">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="1" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="1" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="1" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0"
+                Text="Alle"
+                Command="{Binding ShowAllOrdersCommand}"
+                BackgroundColor="{StaticResource Secondary}"
+                TextColor="{StaticResource Primary}"
+                Padding="0"
+                CornerRadius="0"
+                IsEnabled="{Binding IsLoading, Converter={StaticResource BooleanInvertConverter}}"
+                Opacity="{Binding AllOrdersButtonOpacity}"/>
+            <BoxView Grid.Column="1" WidthRequest="1" BackgroundColor="{StaticResource Primary}" Opacity="0.2" VerticalOptions="Fill"/>
+            <Button Grid.Column="2"
+                Text="Niet gestart"
+                Command="{Binding ShowPendingOrdersCommand}"
+                BackgroundColor="{StaticResource Secondary}"
+                TextColor="{StaticResource Primary}"
+                Padding="0"
+                CornerRadius="0"
+                IsEnabled="{Binding IsLoading, Converter={StaticResource BooleanInvertConverter}}"
+                Opacity="{Binding PendingButtonOpacity}"/>
+            <BoxView Grid.Column="3" WidthRequest="1" BackgroundColor="{StaticResource Primary}" Opacity="0.2" VerticalOptions="Fill"/>
+            <Button Grid.Column="4"
+                Text="Onderweg"
+                Command="{Binding ShowInTransitOrdersCommand}"
+                BackgroundColor="{StaticResource Secondary}"
+                TextColor="{StaticResource Primary}"
+                Padding="0"
+                CornerRadius="0"
+                IsEnabled="{Binding IsLoading, Converter={StaticResource BooleanInvertConverter}}"
+                Opacity="{Binding InTransitButtonOpacity}"/>
+            <BoxView Grid.Column="5" WidthRequest="1" BackgroundColor="{StaticResource Primary}" Opacity="0.2" VerticalOptions="Fill"/>
+            <Button Grid.Column="6"
+                Text="Bezorgd"
+                Command="{Binding ShowDeliveredOrdersCommand}"
+                BackgroundColor="{StaticResource Secondary}"
+                TextColor="{StaticResource Primary}"
+                Padding="0"
+                CornerRadius="0"
+                IsEnabled="{Binding IsLoading, Converter={StaticResource BooleanInvertConverter}}"
+                Opacity="{Binding DeliveredButtonOpacity}"/>
+        </Grid>
+
+        <!-- Zoekbalk -->
+        <Grid Grid.Row="2" Margin="0,0,0,8">
+            <SearchBar
+                Placeholder="Zoek op klant of ordernummer"
+                Text="{Binding SearchText, Mode=TwoWay}"
+                TextColor="{StaticResource Primary}"
+                PlaceholderColor="{StaticResource Gray500}"
+                BackgroundColor="{StaticResource Gray900}"
+                HorizontalOptions="Fill"
+                Margin="0,0,0,8"/>
+        </Grid>
+
+        <!-- Checkbox voor vandaag -->
+        <HorizontalStackLayout Grid.Row="3" Spacing="8" Margin="0,0,0,8">
+            <CheckBox IsChecked="{Binding OnlyToday}" Color="{StaticResource Primary}"/>
+            <Label Text="Alleen bestellingen van vandaag" 
+                   TextColor="{StaticResource Primary}" 
+                   VerticalOptions="Center"/>
+        </HorizontalStackLayout>
+
+        <!-- Status message en loader -->
+        <StackLayout Grid.Row="4" Margin="0,0,0,8" Spacing="4">
+            <Label Text="{Binding StatusMessage}"
+                   TextColor="{StaticResource Primary}"
+                   FontAttributes="Italic"
+                   FontSize="14"/>
+            <ActivityIndicator 
+                IsVisible="{Binding IsLoading}" 
+                IsRunning="{Binding IsLoading}" 
+                Color="{StaticResource Primary}"
+                HeightRequest="32"
+                WidthRequest="32"
+                HorizontalOptions="Center"/>
+        </StackLayout>
+
+        <!-- Orders List -->
+        <CollectionView Grid.Row="5"
+                        ItemsSource="{Binding Orders}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Order">
+                    <SwipeView>
+                        <SwipeView.RightItems>
+                            <SwipeItems Mode="Reveal">
+                                <SwipeItem
+                                    Text="Bekijk Bezorging"
+                                    BackgroundColor="{StaticResource Secondary}"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:OrdersPageViewModel}}, Path=GoToDeliveryTrackingCommand}"
+                                    CommandParameter="{Binding .}"
+                                    IsEnabled="{Binding ., Converter={StaticResource CanInteractWithOrderConverter}}"/>
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+
+                        <Grid RowDefinitions="Auto">
+                            <Border x:Name="OrderBorder"
+                                    Loaded="OrderBorder_Loaded"
+                                    StrokeShape="RoundRectangle 8"
+                                    Background="{StaticResource Gray900}"
+                                    Margin="0,0,0,16"
+                                    Padding="0"
+                                    Opacity="{Binding ., Converter={StaticResource CanInteractWithOrderConverter}, ConverterParameter='Opacity'}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer 
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:OrdersPageViewModel}}, Path=GoToDeliveryTrackingCommand}"
+                                        CommandParameter="{Binding .}" 
+                                        Tapped="OnTapped"/>
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,Auto"
+                                      RowDefinitions="Auto,Auto,Auto,Auto"
+                                      Padding="16,0,0,0">
+
+                                    <Label Grid.Row="0" Grid.Column="0"
+                                           Text="{Binding Id, StringFormat='Order #{0}'}"
+                                           TextColor="{StaticResource Primary}"
+                                           FontSize="20"
+                                           FontAttributes="Bold"/>
+
+                                    <VerticalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                                       InputTransparent="{Binding ., Converter={StaticResource CanInteractWithOrderConverter}, ConverterParameter=true}">
+                                        <Label Text="{Binding Customer.Name}" TextColor="{StaticResource Primary}" FontSize="16" Margin="0,8,0,0"/>
+                                        <Label Text="{Binding Customer.Address}" TextColor="{StaticResource Gray400}"/>
+                                        <Label Text="{Binding Products.Count, StringFormat='{0} producten'}" TextColor="{StaticResource Gray400}" Margin="0,8,0,0"/>
+                                        <Label Text="{Binding DeliveryStates, Converter={StaticResource LastDeliveryStateConverter}}" TextColor="{StaticResource Gray400}" VerticalOptions="Center"/>
+                                    </VerticalStackLayout>
+
+                                    <Label Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                                           Text="{Binding OrderDate, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
+                                           TextColor="{StaticResource Gray400}"
+                                           FontSize="12"
+                                           Margin="0,8,0,0"/>
+
+                                    <ImageButton Grid.Row="0" Grid.Column="1" Grid.RowSpan="4"
+                                               Source="delivery.png"
+                                               BackgroundColor="{StaticResource PrimaryDark}"
+                                               CornerRadius="0"
+                                               Padding="12,0"
+                                               Margin="0"
+                                               Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:OrdersPageViewModel}}, Path=GoToDeliveryTrackingCommand}"
+                                               CommandParameter="{Binding .}"
+                                               IsEnabled="{Binding DeliveryStates, Converter={StaticResource CanStartDeliveryConverter}}"
+                                               VerticalOptions="Fill"
+                                               HorizontalOptions="End"
+                                               HeightRequest="150"
+                                               WidthRequest="80"
+                                               Aspect="AspectFit"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </SwipeView>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

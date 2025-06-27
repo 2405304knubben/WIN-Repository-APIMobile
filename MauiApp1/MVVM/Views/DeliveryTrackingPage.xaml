@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MauiApp1.MVVM.Views.DeliveryTrackingPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:model="clr-namespace:MauiApp1.ModelAPI"
+    xmlns:viewmodel="clr-namespace:MauiApp1.MVVM.ViewModel"
+    xmlns:converters="clr-namespace:MauiApp1.MVVM.Converters"
+    x:DataType="viewmodel:DeliveryTrackingPageViewModel"
+    BackgroundColor="{StaticResource OffBlack}">
+
+    <!-- Custom TitleView met logo rechts -->
+    <Shell.TitleView>
+        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center" Padding="0,0,8,0">
+            <Label Text="Bezorging tracken"
+                   Padding="15,0,0,0"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource Primary}"
+                   VerticalOptions="Center"
+                   HorizontalOptions="Start"
+                   Margin="0,0,8,0"
+                   Grid.Column="0"/>
+            <Image Source="matrix.png"
+                HeightRequest="45"
+                WidthRequest="100"
+                VerticalOptions="Center"
+                HorizontalOptions="End"
+                Grid.Column="1"/>
+        </Grid>
+    </Shell.TitleView>
+
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding GoBackCommand}" />
+    </Shell.BackButtonBehavior>
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:DeliveryStateConverter x:Key="DeliveryStateConverter"/>
+            <converters:StringNotNullOrEmptyConverter x:Key="StringNotNullOrEmptyConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="16" Padding="16">
+            <!-- Order Info -->
+            <Border Stroke="#333333"
+                   StrokeThickness="1"
+                   Background="#2D2D2D"
+                   Padding="16"
+                   StrokeShape="RoundRectangle 8">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="{Binding Order.Id, StringFormat='Order #{0}'}"
+                           FontSize="24"
+                           TextColor="{StaticResource Primary}"/>
+                    <Label Text="{Binding Order.Customer.Name}"
+                           TextColor="White"/>
+                    <Label Text="{Binding Order.Customer.Address}"
+                           TextColor="White"/>
+                    <Label Text="{Binding Order.OrderDate, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
+                           TextColor="White"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Status Message -->
+            <Label Text="{Binding StatusMessage}"
+                   FontSize="18"
+                   TextColor="{StaticResource PrimaryDark}"
+                   HorizontalOptions="Center"/>
+
+            <!-- Route Label -->
+            <Label Text="Routebeschrijving"
+                   FontSize="20"
+                   TextColor="{StaticResource Primary}"
+                   Margin="0,8,0,4"/>
+
+            <!-- Mapbox Static Map -->
+            <Border Stroke="#333333"
+                    StrokeThickness="1"
+                    Background="#2D2D2D"
+                    HeightRequest="300"
+                    Padding="0"
+                    StrokeShape="RoundRectangle 8">
+                <Grid>
+                    <Image
+                        Aspect="AspectFill"
+                        Source="{Binding MapImageUrl}" 
+                        IsVisible="{Binding MapImageUrl, Converter={StaticResource StringNotNullOrEmptyConverter}}"
+                        BackgroundColor="#2D2D2D">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenMapCommand}" />
+                        </Image.GestureRecognizers>
+                    </Image>
+                    <Label
+                        Text="{Binding MapStatusMessage}"
+                        TextColor="White"
+                        FontSize="16"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        Margin="16"
+                        IsVisible="{Binding MapStatusMessage, Converter={StaticResource StringNotNullOrEmptyConverter}}" />
+                </Grid>
+            </Border>
+
+            <!-- Status History -->
+            <Label Text="Bezorggeschiedenis"
+                   FontSize="20"
+                   TextColor="{StaticResource Primary}"/>
+
+            <CollectionView ItemsSource="{Binding Order.DeliveryStates}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:DeliveryState">
+                        <Grid Padding="8">
+                            <Border Stroke="#333333"
+                                   StrokeThickness="1"
+                                   Background="{StaticResource Secondary}"
+                                   Padding="12"
+                                   StrokeShape="RoundRectangle 8">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="{Binding State, Converter={StaticResource DeliveryStateConverter}}"
+                                           TextColor="{StaticResource Primary}"
+                                           FontSize="16"/>
+                                    <Label Text="{Binding DateTime, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
+                                           TextColor="#666666"/>
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Action Buttons -->
+            <Button Text="Start bezorging"
+                    Command="{Binding StartDeliveryCommand}"
+                    BackgroundColor="{StaticResource PrimaryDark}"
+                    TextColor="White"
+                    FontSize="18"
+                    Padding="24,12"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding ShowStartButton}"/>
+
+            <Button Text="Rond bezorging af"
+                    Command="{Binding CompleteDeliveryCommand}"
+                    BackgroundColor="{StaticResource PrimaryDark}"
+                    TextColor="White"
+                    FontSize="18"
+                    Padding="24,12"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding ShowCompleteButton}"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
