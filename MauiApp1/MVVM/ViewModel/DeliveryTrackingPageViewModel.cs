@@ -204,7 +204,8 @@ namespace MauiApp1.MVVM.ViewModel
                                 "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s-l+000({0},{1})/{0},{1},14,0/600x300?access_token={2}",
                                 "-114.981758", // longitude
                                 "36.039581",   // latitude
-                                _mapboxApiKey
+                                _mapboxApiKey,
+                                DateTime.UtcNow.Ticks
                             );
                             MapStatusMessage = null;
                             break;
@@ -216,7 +217,8 @@ namespace MauiApp1.MVVM.ViewModel
                                 "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s-l+000({0},{1})/{0},{1},14,0/600x300?access_token={2}",
                                 "-79.910667",  // longitude
                                 "34.697552",   // latitude
-                                _mapboxApiKey
+                                _mapboxApiKey,
+                                DateTime.UtcNow.Ticks
                             );
                             MapStatusMessage = null;
                             break;
