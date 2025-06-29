@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!-- Dit is de pagina waar we alle bestellingen kunnen zien -->
+<!-- Het is als een grote lijst met alle pakketjes die bezorgd moeten worden -->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:MauiApp1.ModelAPI"
@@ -9,10 +11,10 @@
              BackgroundColor="{StaticResource OffBlack}">
 
 
-    <!-- Custom TitleView met logo rechts -->
+    <!-- Dit is de titelbalk bovenaan met het logo -->
     <Shell.TitleView BackgroundColor="{StaticResource Gray900}">
         <Grid  ColumnDefinitions="*,Auto" VerticalOptions="Center" Padding="0,0,8,0">
-            <!-- De sterretje-kolom duwt alles naar rechts -->
+            <!-- Links staat de tekst "Bestellingen" -->
             <Label Text="Bestellingen"
                    Padding="15,0,0,0"
                FontSize="20"
@@ -22,6 +24,7 @@
                HorizontalOptions="Start"
                Margin="0,0,8,0"
                Grid.Column="0"/>
+            <!-- Rechts staat het Matrix-logo -->
             <Image Source="matrix.png"
                HeightRequest="45"
                WidthRequest="100"
@@ -32,19 +35,26 @@
     </Shell.TitleView>
 
 
+    <!-- Dit zijn speciale helpers die we gebruiken om informatie mooi te laten zien -->
     <ContentPage.Resources>
         <ResourceDictionary>
+            <!-- Deze helper laat de laatste status van een bestelling zien -->
             <converters:LastDeliveryStateConverter x:Key="LastDeliveryStateConverter"/>
+            <!-- Deze helper bepaalt of we een bezorging kunnen starten -->
             <converters:CanStartDeliveryConverter x:Key="CanStartDeliveryConverter"/>
+            <!-- Deze helper bepaalt of we iets met de bestelling kunnen doen -->
             <converters:CanInteractWithOrderConverter x:Key="CanInteractWithOrderConverter"/>
+            <!-- Deze helper draait een ja/nee-waarde om -->
             <converters:BooleanInvertConverter x:Key="BooleanInvertConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
 
+    <!-- Dit is de hoofdindeling van de pagina -->
+    <!-- We hebben verschillende rijen: filters, zoekbalk, knoppen en de lijst -->
     <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,*" Padding="16,8">
         
 
-        <!-- Filterknoppen -->
+        <!-- Dit zijn de knoppen om te filteren (Alle, Wachtend, Onderweg, etc.) -->
         <Grid Grid.Row="1" ColumnSpacing="0" Margin="0,0,0,15" HeightRequest="60">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
