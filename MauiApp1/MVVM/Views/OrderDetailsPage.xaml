@@ -1,16 +1,36 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!-- Dit is de pagina waar je alle details van een bestelling kunt zien -->
+<!-- Het is als een bonnetje van de winkel met alle informatie -->
 <ContentPage
     x:Class="MauiApp1.MVVM.Views.OrderDetailsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     Title="Order Details">
+    
+    <!-- Je kunt op deze pagina scrollen als er veel informatie is -->
     <ScrollView>
+        <!-- Alle informatie staat netjes onder elkaar -->
         <VerticalStackLayout Padding="16" Spacing="12">
+            <!-- De titel bovenaan -->
             <Label Text="Order Details" FontSize="24" FontAttributes="Bold" />
-            <Label Text="{Binding Order.Id, StringFormat='Order #{0}'}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
-            <Label Text="{Binding Order.OrderDate, StringFormat='Datum: {0:dd/MM/yyyy HH:mm}'}" FontSize="16" />
-            <Label Text="{Binding Order.Customer.Name, StringFormat='Klant: {0}'}" FontSize="16" />
-            <Label Text="{Binding Order.Customer.Address, StringFormat='Adres: {0}'}" FontSize="14" />
+            
+            <!-- Het bestelnummer -->
+            <Label Text="{Binding Order.Id, StringFormat='Order #{0}'}" 
+                   FontSize="18" 
+                   FontAttributes="Bold" 
+                   TextColor="{StaticResource Primary}" />
+            
+            <!-- De datum en tijd van de bestelling -->
+            <Label Text="{Binding Order.OrderDate, StringFormat='Datum: {0:dd/MM/yyyy HH:mm}'}" 
+                   FontSize="16" />
+            
+            <!-- De naam van de klant -->
+            <Label Text="{Binding Order.Customer.Name, StringFormat='Klant: {0}'}" 
+                   FontSize="16" />
+            
+            <!-- Het bezorgadres -->
+            <Label Text="{Binding Order.Customer.Address, StringFormat='Adres: {0}'}" 
+                   FontSize="14" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

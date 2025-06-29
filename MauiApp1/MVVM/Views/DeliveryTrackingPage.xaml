@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!-- Dit is de pagina waar we kunnen zien waar een bezorging is -->
+<!-- Het is als een pakketvolgsysteem zoals PostNL of DHL -->
 <ContentPage
     x:Class="MauiApp1.MVVM.Views.DeliveryTrackingPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -9,9 +11,10 @@
     x:DataType="viewmodel:DeliveryTrackingPageViewModel"
     BackgroundColor="{StaticResource OffBlack}">
 
-    <!-- Custom TitleView met logo rechts -->
+    <!-- Dit is de titelbalk bovenaan met het logo -->
     <Shell.TitleView>
         <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center" Padding="0,0,8,0">
+            <!-- Links staat de tekst "Bezorging tracken" -->
             <Label Text="Bezorging tracken"
                    Padding="15,0,0,0"
                    FontSize="20"
@@ -21,6 +24,7 @@
                    HorizontalOptions="Start"
                    Margin="0,0,8,0"
                    Grid.Column="0"/>
+            <!-- Rechts staat het Matrix-logo -->
             <Image Source="matrix.png"
                 HeightRequest="45"
                 WidthRequest="100"
@@ -30,20 +34,26 @@
         </Grid>
     </Shell.TitleView>
 
+    <!-- Als je op de terugknop drukt, gaan we terug naar de vorige pagina -->
     <Shell.BackButtonBehavior>
         <BackButtonBehavior Command="{Binding GoBackCommand}" />
     </Shell.BackButtonBehavior>
 
+    <!-- Dit zijn speciale helpers die we gebruiken om informatie mooi te laten zien -->
     <ContentPage.Resources>
         <ResourceDictionary>
+            <!-- Deze helper maakt mooie tekst van bezorgstatussen -->
             <converters:DeliveryStateConverter x:Key="DeliveryStateConverter"/>
+            <!-- Deze helper kijkt of er tekst is ingevuld -->
             <converters:StringNotNullOrEmptyConverter x:Key="StringNotNullOrEmptyConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
 
+    <!-- Je kunt op deze pagina scrollen als er veel informatie is -->
     <ScrollView>
+        <!-- Alle informatie staat onder elkaar -->
         <VerticalStackLayout Spacing="16" Padding="16">
-            <!-- Order Info -->
+            <!-- Dit stukje laat de informatie over de bestelling zien -->
             <Border Stroke="#333333"
                    StrokeThickness="1"
                    Background="#2D2D2D"
@@ -62,52 +72,76 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Status Message -->
+            <!-- Dit is het statusbericht van de bezorging -->
             <Label Text="{Binding StatusMessage}"
                    FontSize="18"
                    TextColor="{StaticResource PrimaryDark}"
                    HorizontalOptions="Center"/>
 
-            <!-- Route Label -->
+            <!-- Dit is het kopje voor de routebeschrijving -->
             <Label Text="Routebeschrijving"
                    FontSize="20"
                    TextColor="{StaticResource Primary}"
                    Margin="0,8,0,4"/>
 
-            <!-- Mapbox Static Map -->
+            <!-- Dit gedeelte toont de kaart met de route -->
             <Border Stroke="#333333"
-                    StrokeThickness="1"
-                    Background="#2D2D2D"
-                    HeightRequest="300"
-                    Padding="0"
-                    StrokeShape="RoundRectangle 8">
+        StrokeThickness="1"
+        Background="#2D2D2D"
+        HeightRequest="300"
+        Padding="0"
+        StrokeShape="RoundRectangle 8">
                 <Grid>
                     <Image
-                        Aspect="AspectFill"
-                        Source="{Binding MapImageUrl}" 
-                        IsVisible="{Binding MapImageUrl, Converter={StaticResource StringNotNullOrEmptyConverter}}"
-                        BackgroundColor="#2D2D2D">
+            Aspect="AspectFill"
+            Source="{Binding MapImageUrl}" 
+            IsVisible="{Binding MapImageUrl, Converter={StaticResource StringNotNullOrEmptyConverter}}"
+            BackgroundColor="#2D2D2D">
                         <Image.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding OpenMapCommand}" />
                         </Image.GestureRecognizers>
                     </Image>
+                    <!-- Overlay label voor routebeschrijving met afgeronde hoeken en click -->
+                    <Border
+            BackgroundColor="#CC000000"
+            StrokeThickness="0"
+            StrokeShape="RoundRectangle 18"
+            Padding="0"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            IsVisible="{Binding ShowMapOverlay}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenMapCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label
+                Text="Druk hier op voor een routebeschrijving"
+                TextColor="White"
+                FontSize="18"
+                Padding="16,8"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                HorizontalTextAlignment="Center"
+                VerticalTextAlignment="Center" />
+                    </Border>
                     <Label
-                        Text="{Binding MapStatusMessage}"
-                        TextColor="White"
-                        FontSize="16"
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center"
-                        HorizontalTextAlignment="Center"
-                        Margin="16"
-                        IsVisible="{Binding MapStatusMessage, Converter={StaticResource StringNotNullOrEmptyConverter}}" />
+            Text="{Binding MapStatusMessage}"
+            TextColor="White"
+            FontSize="16"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            HorizontalTextAlignment="Center"
+            Margin="16"
+            IsVisible="{Binding MapStatusMessage, Converter={StaticResource StringNotNullOrEmptyConverter}}" />
                 </Grid>
             </Border>
 
-            <!-- Status History -->
+
+            <!-- Dit is het kopje voor de bezorggeschiedenis -->
             <Label Text="Bezorggeschiedenis"
                    FontSize="20"
                    TextColor="{StaticResource Primary}"/>
 
+            <!-- Dit is een lijst van alle bezorgstatussen tijdens de rit -->
             <CollectionView ItemsSource="{Binding Order.DeliveryStates}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:DeliveryState">
@@ -130,7 +164,7 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <!-- Action Buttons -->
+            <!-- Dit zijn de knoppen om de bezorging te starten of af te ronden -->
             <Button Text="Start bezorging"
                     Command="{Binding StartDeliveryCommand}"
                     BackgroundColor="{StaticResource PrimaryDark}"

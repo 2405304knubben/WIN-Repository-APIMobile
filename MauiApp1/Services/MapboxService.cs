@@ -1,3 +1,5 @@
+// Dit bestand helpt ons om adressen om te zetten naar coördinaten (waar het precies op de kaart ligt)
+// Het is als een heel slim adresboek dat precies weet waar elk adres is
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
@@ -9,43 +11,56 @@ using System.Diagnostics;
 
 namespace MauiApp1.Services
 {
+    // Deze helper praat met Mapbox (een kaartendienst) om adressen te vinden
     public class MapboxService
     {
+        // Dit gebruiken we om met het internet te praten
         private readonly HttpClient _httpClient;
+        // Dit is onze speciale sleutel om Mapbox te mogen gebruiken
         private readonly string _apiKey;
+        // Dit is een lijst met adressen die we al kennen
+        // Het is als een klein adresboekje in ons geheugen
         private readonly Dictionary<string, (double Latitude, double Longitude)> _knownAddresses;
 
+        // Als we deze helper maken, hebben we een sleutel nodig voor Mapbox
         public MapboxService(string apiKey)
         {
             _apiKey = apiKey;
+            // We maken een nieuwe internetverbinding klaar
             _httpClient = new HttpClient
             {
                 BaseAddress = new Uri("https://api.mapbox.com")
             };
             
-            // Initialize known addresses
+            // We maken een lijst met adressen die we al kennen
+            // Dit zijn voorbeeldadressen met hun exacte locatie op de kaart
             _knownAddresses = new Dictionary<string, (double, double)>(StringComparer.OrdinalIgnoreCase)
             {
-                { "123 Elm St", (36.039581, -114.981758) },  // Henderson, NV coordinates
-                { "456 Oak St", (34.697552, -79.910667) }    // Cheraw, SC coordinates
+                // Het eerste getal is hoe ver naar boven/beneden op de kaart (latitude)
+                // Het tweede getal is hoe ver naar links/rechts op de kaart (longitude)
+                { "123 Elm St", (36.039581, -114.981758) },  // Dit is in Henderson, NV
+                { "456 Oak St", (34.697552, -79.910667) }    // Dit is in Cheraw, SC
             };
         }
 
+        // Deze functie zoekt uit waar een adres precies ligt
         public async Task<(double Latitude, double Longitude)?> GetCoordinatesAsync(string address)
         {
             Debug.WriteLine($"[Mapbox] Looking up address: {address}");
 
-            // Check if this is a known address first
-            var simpleAddress = address.Split(',')[0].Trim();  // Take just the street part
+            // Eerst kijken we of het een adres is dat we al kennen
+            // We pakken alleen het straatgedeelte (bijvoorbeeld "123 Elm St" van "123 Elm St, New York")
+            var simpleAddress = address.Split(',')[0].Trim();
             Debug.WriteLine($"[Mapbox] Simplified address: {simpleAddress}");
 
+            // Als we het adres al kennen, geven we meteen de locatie terug
             if (_knownAddresses.TryGetValue(simpleAddress, out var coordinates))
             {
                 Debug.WriteLine($"[Mapbox] Found known address! Coordinates: {coordinates.Latitude}, {coordinates.Longitude}");
                 return coordinates;
             }
 
-            // If not a known address, try Mapbox geocoding
+            // Als we het adres nog niet kennen, vragen we het aan Mapbox
             var url = $"/geocoding/v5/mapbox.places/{Uri.EscapeDataString(address)}, United States.json?access_token={_apiKey}&limit=1";
             Debug.WriteLine($"[Mapbox] Calling Mapbox API with URL: {url}");
 
